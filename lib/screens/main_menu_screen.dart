@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'materi_screen.dart';
 import 'character_screen.dart';
+import 'materi_screen.dart';
+import 'setting_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -51,11 +52,10 @@ class _MainMenuScreenState extends State<MainMenuScreen> {
           MaterialPageRoute(builder: (context) => const CharacterScreen()),
         );
         break;
-      case 4:
-        _showGameDialog(
-          'PENGATURAN',
-          'Konfigurasi kontrol permainan, volume latar (BGM), dan efek suara (SFX).',
-          Icons.tune_rounded,
+      case 4: // Sesuaikan dengan urutan tombol Pengaturan (misal index 4)
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const SettingScreen()),
         );
         break;
       case 5:
