@@ -1,10 +1,9 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'character_screen.dart';
+import 'level_screen.dart';
 import 'materi_screen.dart';
 import 'setting_screen.dart';
 
@@ -15,374 +14,549 @@ class MainMenuScreen extends StatefulWidget {
   State<MainMenuScreen> createState() => _MainMenuScreenState();
 }
 
-class _MainMenuScreenState extends State<MainMenuScreen> {
-  int _selectedIndex = 0;
+class _MainMenuScreenState extends State<MainMenuScreen>
+    with SingleTickerProviderStateMixin {
+  int _hoveredIndex = -1;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
 
-  final List<Map<String, dynamic>> _menuItems = [
-    {'title': 'PLAY', 'icon': Icons.play_arrow_rounded},
-    {'title': 'DAILY CHALLENGE', 'icon': Icons.local_fire_department_rounded},
-    {'title': 'MATERI', 'icon': Icons.menu_book_rounded},
-    {'title': 'KARAKTER', 'icon': Icons.person_rounded},
-    {'title': 'SETTINGS', 'icon': Icons.tune_rounded},
-    {'title': 'QUIT', 'icon': Icons.power_settings_new_rounded},
+  // Daftar Menu Lengkap Code Hunter
+  final List<Map<String, dynamic>> _menuList = [
+    {
+      'title': 'MULAI PETUALANGAN',
+      'subtitle': 'Jelajahi peta level & kalahkan coding bug',
+      'tag': 'LEVEL MAP',
+      'icon': Icons.play_arrow_rounded,
+      'color': Color(0xFF00E676),
+    },
+    {
+      'title': 'ROSTER KARAKTER',
+      'subtitle': 'Pilih 10 hero voxel & atur perlengkapan koding',
+      'tag': 'HEROES',
+      'icon': Icons.shield_rounded,
+      'color': Color(0xFF00D2FF),
+    },
+    {
+      'title': 'KODEKS MATERI',
+      'subtitle': 'Pelajari 8 modul logika algoritma & ikuti kuis',
+      'tag': '8 MODUL',
+      'icon': Icons.menu_book_rounded,
+      'color': Color(0xFFFFB800),
+    },
+    {
+      'title': 'PENGATURAN SISTEM',
+      'subtitle': 'Sesuaikan volume suara, tema pencahayaan & teks',
+      'tag': 'CONFIG',
+      'icon': Icons.tune_rounded,
+      'color': Color(0xFFFF70A6),
+    },
+    {
+      'title': 'KELUAR DARI GAME',
+      'subtitle': 'Tutup sesi petualangan Code Hunter',
+      'tag': 'EXIT',
+      'icon': Icons.power_settings_new_rounded,
+      'color': Color(0xFFFF5252),
+    },
   ];
 
-  void _handleMenuAction(int index) {
-    setState(() => _selectedIndex = index);
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 0.98, end: 1.02).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  void _onMenuSelected(int index) {
     switch (index) {
       case 0:
-        debugPrint('Membuka level select...');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LevelScreen()),
+        );
         break;
       case 1:
-        _showGameDialog(
-          'DAILY CHALLENGE',
-          'Selesaikan satu tantangan koding kilat setiap hari untuk mengumpulkan koin dan badge reputasi[cite: 1]!',
-          Icons.local_fire_department_rounded,
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const CharacterScreen()),
         );
         break;
       case 2:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const MateriScreen()),
+          MaterialPageRoute(builder: (_) => const MateriScreen()),
         );
         break;
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const CharacterScreen()),
+          MaterialPageRoute(builder: (_) => const SettingScreen()),
         );
         break;
-      case 4: // Sesuaikan dengan urutan tombol Pengaturan (misal index 4)
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const SettingScreen()),
-        );
-        break;
-      case 5:
-        SystemNavigator.pop();
+      case 4:
+        _showExitConfirmationDialog();
         break;
     }
   }
 
-  void _showGameDialog(String title, String content, IconData icon) {
+  void _showExitConfirmationDialog() {
     showDialog(
       context: context,
-      builder: (ctx) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
-        child: Dialog(
-          backgroundColor: Colors.transparent,
-          child: Container(
-            width: 420,
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              color: const Color(0xFF15181C).withOpacity(0.95),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: const Color(0xFFFF9800).withOpacity(0.7),
-                width: 2,
-              ),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black87,
-                  blurRadius: 24,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: const Color(0xFFFFB74D), size: 28),
-                const SizedBox(height: 12),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.pressStart2p(
-                    fontSize: 12,
-                    color: const Color(0xFFFFB74D),
-                    letterSpacing: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Text(
-                  content,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Color(0xFFE0E0E0),
-                    fontSize: 13,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: Colors.white.withOpacity(0.1),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 10,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text(
-                    'KEMBALI',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.5,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+      builder: (_) => AlertDialog(
+        backgroundColor: const Color(0xFF141924),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+          side: const BorderSide(color: Color(0xFFFF5252), width: 1.5),
+        ),
+        title: const Text(
+          'KONFIRMASI KELUAR',
+          style: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+            color: Color(0xFFFF5252),
           ),
         ),
+        content: const Text(
+          'Apakah kamu yakin ingin mengakhiri sesi petualangan Code Hunter?',
+          style: TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.4),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'BATAL',
+              style: TextStyle(color: Colors.white54, fontSize: 11),
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFD32F2F),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            onPressed: () {
+              Navigator.pop(context);
+              SystemNavigator.pop();
+            },
+            child: const Text(
+              'KELUAR',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+            ),
+          ),
+        ],
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // 1. Gambar Background Landscape Fullscreen
-          Image.asset('assets/images/bg/bg_jungle.png', fit: BoxFit.cover),
+    return AnimatedBuilder(
+      animation: GameSettings.instance,
+      builder: (context, _) {
+        final settings = GameSettings.instance;
+        final bool isDimmed = settings.isDimmedTheme;
 
-          // 2. Lapisan Gradasi Gelap Sisi Kiri
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                stops: const [0.0, 0.42, 0.75, 1.0],
-                colors: [
-                  Colors.black.withOpacity(0.92),
-                  Colors.black.withOpacity(0.70),
-                  Colors.black.withOpacity(0.20),
-                  Colors.transparent,
-                ],
-              ),
-            ),
-          ),
+        final Color overlayColor = isDimmed
+            ? const Color(0xFF090C12).withOpacity(0.93)
+            : const Color(0xFF0E131C).withOpacity(0.86);
 
-          // 3. Tata Letak Menu
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 42.0,
-                top: 20.0,
-                bottom: 20.0,
-                right: 36.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Spacer atas untuk menurunkan blok judul ke posisi garis merah
-                  const Spacer(flex: 3),
+        return Scaffold(
+          body: Stack(
+            fit: StackFit.expand,
+            children: [
+              // 1. Latar Belakang Rimba Utama
+              Image.asset('assets/images/bg/bg_jungle.png', fit: BoxFit.cover),
 
-                  // Judul CODE HUNTER (Tepat di atas tombol menu)
-                  Text(
-                    'CODE HUNTER',
-                    style: GoogleFonts.pressStart2p(
-                      fontSize: 26,
-                      letterSpacing: 3,
-                      foreground: Paint()
-                        ..shader = const LinearGradient(
-                          colors: [
-                            Color(0xFFFFF9C4),
-                            Color(0xFFFFB74D),
-                            Color(0xFFFF9800),
-                          ],
-                        ).createShader(const Rect.fromLTWH(0, 0, 320, 40)),
-                      shadows: const [
-                        Shadow(
-                          offset: Offset(0, 4),
-                          blurRadius: 0,
-                          color: Color(0xFF3E2723),
+              // 2. Lapisan Suasana Redup vs Terang Normal
+              Container(color: overlayColor),
+
+              // 3. Efek Scanlines Layar (Jika Diaktifkan di Pengaturan)
+              if (settings.enableScanlines)
+                IgnorePointer(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: List.generate(
+                          120,
+                          (i) => i.isEven
+                              ? Colors.black.withOpacity(0.12)
+                              : Colors.transparent,
                         ),
-                        Shadow(
-                          offset: Offset(0, 8),
-                          blurRadius: 16,
-                          color: Colors.black,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
+                ),
 
-                  const SizedBox(
-                    height: 18,
-                  ), // Jarak rapat antara judul dan menu
-                  // Daftar Menu dengan Garis Pembatas Vertikal
-                  IntrinsicHeight(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Container(
-                          width: 2.5,
-                          margin: const EdgeInsets.only(right: 14),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.white.withOpacity(0.1),
-                                const Color(0xFFFF9800).withOpacity(0.8),
-                                Colors.white.withOpacity(0.1),
+              // 4. Konten Antarmuka Menu Utama
+              SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32.0,
+                    vertical: 18.0,
+                  ),
+                  child: Column(
+                    children: [
+                      // HEADER BAR: Profil Pemain & Indikator Status Audio
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Kartu Identitas Petualang
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF161C28),
+                              border: Border.all(
+                                color: const Color(0xFF2E3B50),
+                                width: 1.5,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 32,
+                                  height: 32,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFB800),
+                                    borderRadius: BorderRadius.circular(4),
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.person_rounded,
+                                      color: Colors.black,
+                                      size: 20,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      settings.playerName.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 1,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    const Text(
+                                      'STATUS: APPRENTICE CODER',
+                                      style: TextStyle(
+                                        fontSize: 8.5,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF00D2FF),
+                                        letterSpacing: 0.8,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ],
                             ),
                           ),
-                        ),
 
-                        // List Tombol Navigasi
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: List.generate(_menuItems.length, (index) {
-                            final isSelected = _selectedIndex == index;
-                            final item = _menuItems[index];
+                          // Indikator Cepat Mode Audio & Tema
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF161C28),
+                                  border: Border.all(
+                                    color: const Color(0xFF2E3B50),
+                                    width: 1,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      settings.isBgmMuted
+                                          ? Icons.volume_off
+                                          : Icons.volume_up,
+                                      size: 14,
+                                      color: settings.isBgmMuted
+                                          ? const Color(0xFFFF5252)
+                                          : const Color(0xFF00E676),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      settings.isBgmMuted
+                                          ? 'BGM OFF'
+                                          : 'BGM ${(settings.rawBgmVolume * 100).toInt()}%',
+                                      style: const TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white70,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const SettingScreen(),
+                                    ),
+                                  );
+                                },
+                                borderRadius: BorderRadius.circular(4),
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF1B2433),
+                                    border: Border.all(
+                                      color: const Color(0xFF384761),
+                                    ),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: const Icon(
+                                    Icons.settings_rounded,
+                                    size: 16,
+                                    color: Color(0xFFFFB800),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+
+                      const Spacer(),
+
+                      // JUDUL HERO UTAMA & LOGO
+                      ScaleTransition(
+                        scale: _pulseAnimation,
+                        child: Column(
+                          children: [
+                            Text(
+                              'CODE HUNTER',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.pressStart2p(
+                                fontSize: 36,
+                                letterSpacing: 5,
+                                color: const Color(0xFFFFB800),
+                                shadows: const [
+                                  Shadow(
+                                    color: Colors.black,
+                                    offset: Offset(5, 5),
+                                    blurRadius: 0,
+                                  ),
+                                  Shadow(
+                                    color: Color(0xFFD68B00),
+                                    offset: Offset(2, 2),
+                                    blurRadius: 0,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF151C28).withOpacity(0.9),
+                                border: Border.all(
+                                  color: const Color(0xFF324157),
+                                  width: 1.2,
+                                ),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'MEDIA EDUKASI DASAR PEMROGRAMAN RPL / PPLG',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 2,
+                                  color: Colors.white.withOpacity(0.85),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 38),
+
+                      // DAFTAR MENU INTERAKTIF LENGKAP
+                      SizedBox(
+                        width: 460,
+                        child: Column(
+                          children: List.generate(_menuList.length, (index) {
+                            final item = _menuList[index];
+                            final isHovered = _hoveredIndex == index;
+                            final Color itemColor = item['color'];
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 3.0,
-                              ),
-                              child: InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onHover: (hover) {
-                                  if (hover)
-                                    setState(() => _selectedIndex = index);
-                                },
-                                onTap: () => _handleMenuAction(index),
-                                child: AnimatedContainer(
-                                  duration: const Duration(milliseconds: 160),
-                                  width: 260,
-                                  height: 38,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    gradient: isSelected
-                                        ? const LinearGradient(
-                                            colors: [
-                                              Color(0xFFE65100),
-                                              Color(0xFFF57C00),
-                                              Color(0xFFFFB74D),
-                                            ],
-                                          )
-                                        : null,
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: const Radius.circular(4),
-                                      bottomLeft: const Radius.circular(4),
-                                      topRight: isSelected
-                                          ? const Radius.circular(16)
-                                          : Radius.zero,
-                                      bottomRight: isSelected
-                                          ? const Radius.circular(16)
-                                          : Radius.zero,
+                              padding: const EdgeInsets.only(bottom: 11.0),
+                              child: MouseRegion(
+                                onEnter: (_) =>
+                                    setState(() => _hoveredIndex = index),
+                                onExit: (_) =>
+                                    setState(() => _hoveredIndex = -1),
+                                child: InkWell(
+                                  onTap: () => _onMenuSelected(index),
+                                  borderRadius: BorderRadius.circular(4),
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 140),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 18,
+                                      vertical: 12,
                                     ),
-                                    boxShadow: isSelected
-                                        ? [
-                                            BoxShadow(
-                                              color: const Color(0xFFFF9800)
-                                                  .withOpacity(0.4),
-                                              blurRadius: 12,
-                                              offset: const Offset(2, 2),
-                                            ),
-                                          ]
-                                        : null,
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        item['icon'] as IconData,
-                                        size: 18,
-                                        color: isSelected
+                                    decoration: BoxDecoration(
+                                      color: isHovered
+                                          ? itemColor
+                                          : const Color(0xFF151C28)
+                                                .withOpacity(0.92),
+                                      borderRadius: BorderRadius.circular(4),
+                                      border: Border.all(
+                                        color: isHovered
                                             ? Colors.white
-                                            : Colors.white54,
+                                            : const Color(0xFF2C394F),
+                                        width: isHovered ? 2 : 1.2,
                                       ),
-                                      const SizedBox(width: 12),
-                                      Text(
-                                        item['title'] as String,
-                                        style: TextStyle(
-                                          fontSize: isSelected ? 15 : 14,
-                                          fontWeight: isSelected
-                                              ? FontWeight.w900
-                                              : FontWeight.w600,
-                                          letterSpacing: 2,
-                                          color: isSelected
-                                              ? Colors.white
-                                              : Colors.white.withOpacity(0.72),
-                                          shadows: isSelected
-                                              ? const [
-                                                  Shadow(
-                                                    color: Colors.black54,
-                                                    offset: Offset(1, 1),
-                                                    blurRadius: 3,
-                                                  ),
-                                                ]
-                                              : null,
+                                      boxShadow: isHovered
+                                          ? [
+                                              BoxShadow(
+                                                color: itemColor.withOpacity(
+                                                  0.35,
+                                                ),
+                                                blurRadius: 16,
+                                                spreadRadius: 1,
+                                              ),
+                                            ]
+                                          : null,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          item['icon'],
+                                          color: isHovered
+                                              ? Colors.black
+                                              : itemColor,
+                                          size: 20,
                                         ),
-                                      ),
-                                    ],
+                                        const SizedBox(width: 14),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                item['title'],
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w900,
+                                                  letterSpacing: 1.2,
+                                                  color: isHovered
+                                                      ? Colors.black
+                                                      : Colors.white,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 2),
+                                              Text(
+                                                item['subtitle'],
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: TextStyle(
+                                                  fontSize: 9.5,
+                                                  color: isHovered
+                                                      ? Colors.black87
+                                                      : Colors.white
+                                                            .withOpacity(0.5),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 7,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isHovered
+                                                ? Colors.black.withOpacity(0.2)
+                                                : const Color(0xFF202A3C),
+                                            borderRadius: BorderRadius.circular(
+                                              2,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            item['tag'],
+                                            style: TextStyle(
+                                              fontSize: 8,
+                                              fontWeight: FontWeight.w900,
+                                              letterSpacing: 0.8,
+                                              color: isHovered
+                                                  ? Colors.black
+                                                  : itemColor,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             );
                           }),
                         ),
-                      ],
-                    ),
-                  ),
-
-                  // Spacer bawah untuk mendorong footer keterangan ke bagian bawah layar
-                  const Spacer(flex: 4),
-
-                  // Footer Keterangan di Kiri Bawah
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.2),
-                            width: 0.8,
-                          ),
-                        ),
-                        child: const Text(
-                          'ENTER',
-                          style: TextStyle(
-                            fontSize: 9,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white70,
-                          ),
-                        ),
                       ),
-                      const SizedBox(width: 8),
+
+                      const Spacer(),
+
+                      // FOOTER HINT
                       Text(
-                        'PILIH MENU',
+                        'VERSI 1.0.0 EDU-RELEASE  •  FLUTTER GAME ENGINE',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 9,
                           letterSpacing: 1.5,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white.withOpacity(0.6),
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.35),
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
