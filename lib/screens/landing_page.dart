@@ -42,7 +42,7 @@ class _LandingPageState extends State<LandingPage> {
       context,
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 700),
-        pageBuilder: (_, __, ___) => const MainMenuScreen(),
+        pageBuilder: (_, __, ___) => MainMenuScreen(),
         transitionsBuilder: (_, animation, __, child) =>
             FadeTransition(opacity: animation, child: child),
       ),

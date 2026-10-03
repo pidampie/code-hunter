@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'setting_screen.dart';
+
 // Konfigurasi agar scroll horizontal bisa digeser bebas dengan mouse/trackpad di browser
 class MouseDraggableScrollBehavior extends MaterialScrollBehavior {
   @override
@@ -1607,11 +1609,12 @@ class MateriDetailScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(18),
                               child: SelectableText(
                                 materi.sourceCode,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: 'Courier',
                                   color: Color(0xFF90E0EF),
-                                  fontSize: 13,
-                                  height: 1.55,
+                                  fontSize:
+                                      GameSettings.instance.codeFontSizeInPx,
+                                  height: 1.5,
                                 ),
                               ),
                             ),
