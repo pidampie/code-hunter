@@ -67,6 +67,7 @@ flutter:
     - assets/images/tiles/
     - tiled/maps/
     - tiled/tilesets/
+    - assets/images/
     - assets/images/bg/
     - assets/images/materi/
     # To add assets to your application, add an assets section, like this:
