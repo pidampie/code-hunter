@@ -1,407 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-// ---------------------------------------------------------------------------
-// MODEL DATA KARAKTER & SKILL
-// ---------------------------------------------------------------------------
-class CharacterSkill {
-  final String name;
-  final String type; // 'PASIF', 'SKILL 1', 'SKILL 2', 'ULTIMATE'
-  final IconData icon;
-  final String description;
-
-  const CharacterSkill({
-    required this.name,
-    required this.type,
-    required this.icon,
-    required this.description,
-  });
-}
-
-class CharacterModel {
-  final int id;
-  final String name;
-  final String title;
-  final String role;
-  final String quote;
-  final Color themeColor;
-  final IconData avatarIcon;
-  final double durability;
-  final double offense;
-  final double skillEffect;
-  final double difficulty;
-  final String lore;
-  final bool isUnlocked;
-  final List<CharacterSkill> skills;
-
-  const CharacterModel({
-    required this.id,
-    required this.name,
-    required this.title,
-    required this.role,
-    required this.quote,
-    required this.themeColor,
-    required this.avatarIcon,
-    required this.durability,
-    required this.offense,
-    required this.skillEffect,
-    required this.difficulty,
-    required this.lore,
-    required this.isUnlocked,
-    required this.skills,
-  });
-
-  String get imagePath => 'assets/images/player/char_$id.png';
-}
-
-// ---------------------------------------------------------------------------
-// 10 DATABASE KARAKTER BERDASARKAN ARCHETYPE PEMROGRAMAN
-// ---------------------------------------------------------------------------
-final List<CharacterModel> characterRoster = [
-  const CharacterModel(
-    id: 1,
-    name: 'STEVIE',
-    title: 'The Syntax Pioneer',
-    role: 'Fighter',
-    quote: '"Satu baris kode bersih bernilai seribu perbaikan bug."',
-    themeColor: Color(0xFF4CAF50),
-    avatarIcon: Icons.handyman_rounded,
-    durability: 0.75,
-    offense: 0.70,
-    skillEffect: 0.50,
-    difficulty: 0.30,
-    lore: 'Petualang pemula yang menguasai seni fundamental instruksi sekuensial. Selalu membawa palu kompilasi untuk merapikan blok kode yang berantakan.',
-    isUnlocked: true,
-    skills: [
-      CharacterSkill(
-        name: 'Clean Code',
-        type: 'PASIF',
-        icon: Icons.auto_fix_high_rounded,
-        description: 'Setiap kali menjawab kuis tanpa kesalahan, regenerasi nyawa meningkat 15%.',
-      ),
-      CharacterSkill(
-        name: 'Syntax Strike',
-        type: 'SKILL 1',
-        icon: Icons.gavel_rounded,
-        description: 'Menghantam bug terdekat dengan tanda titik-koma raksasa, memberikan damage fisik.',
-      ),
-      CharacterSkill(
-        name: 'Variable Shield',
-        type: 'SKILL 2',
-        icon: Icons.shield_rounded,
-        description: 'Menciptakan perisai data sementara yang menyerap 2 serangan musuh.',
-      ),
-      CharacterSkill(
-        name: 'Compile Overload',
-        type: 'ULTIMATE',
-        icon: Icons.bolt_rounded,
-        description: 'Mengeksekusi gelombang energi kompilasi penuh ke seluruh area peta.',
-      ),
-    ],
-  ),
-  const CharacterModel(
-    id: 2,
-    name: 'ADA',
-    title: 'Lady of Logic',
-    role: 'Mage',
-    quote: '"Logika matematika adalah puisi alam semesta."',
-    themeColor: Color(0xFF9C27B0),
-    avatarIcon: Icons.auto_awesome_rounded,
-    durability: 0.35,
-    offense: 0.40,
-    skillEffect: 0.95,
-    difficulty: 0.70,
-    lore: 'Penyihir legendaris perintis bahasa mesin. Mampu memanipulasi percabangan realitas dan melipat loop waktu untuk memusnahkan kesalahan program.',
-    isUnlocked: true,
-    skills: [
-      CharacterSkill(
-        name: 'Binary Aura',
-        type: 'PASIF',
-        icon: Icons.lightbulb_outline_rounded,
-        description: 'Meningkatkan perolehan skor kuis koding sebesar 20%.',
-      ),
-      CharacterSkill(
-        name: 'Branching Fork',
-        type: 'SKILL 1',
-        icon: Icons.alt_route_rounded,
-        description: 'Melemparkan proyektil IF-ELSE ganda yang mencari 2 musuh sekaligus.',
-      ),
-      CharacterSkill(
-        name: 'Infinite Orbit',
-        type: 'SKILL 2',
-        icon: Icons.all_inclusive_rounded,
-        description:
-            'Menjebak musuh di dalam pusaran perulangan (Loop) selama 2 detik.',
-      ),
-      CharacterSkill(
-        name: 'Quantum Algorithm',
-        type: 'ULTIMATE',
-        icon: Icons.flare_rounded,
-        description: 'Memanggil badai kalkulasi data analitis yang melenyapkan bug seketika.',
-      ),
-    ],
-  ),
-  const CharacterModel(
-    id: 3,
-    name: 'CIPHER',
-    title: 'Null Pointer Shadow',
-    role: 'Assassin',
-    quote: '"Kamu tak bisa memperbaiki apa yang tidak bisa kamu lihat."',
-    themeColor: Color(0xFFE91E63),
-    avatarIcon: Icons.flash_on_rounded,
-    durability: 0.30,
-    offense: 0.95,
-    skillEffect: 0.60,
-    difficulty: 0.85,
-    lore: 'Pembunuh bayaran yang hidup di celah alamat memori mentah. Menyerang bug logika berbahaya dari titik buta sebelum garbage collector sempat bertindak.',
-    isUnlocked: false,
-    skills: [
-      CharacterSkill(
-        name: 'Memory Leak',
-        type: 'PASIF',
-        icon: Icons.opacity_rounded,
-        description: 'Serangan biasa menyebabkan musuh kehilangan pertahanan secara bertahap.',
-      ),
-      CharacterSkill(
-        name: 'Pointer Dash',
-        type: 'SKILL 1',
-        icon: Icons.double_arrow_rounded,
-        description: 'Melesat seketika ke alamat memori musuh tanpa memicu jebakan rintangan.',
-      ),
-      CharacterSkill(
-        name: 'Null Exception',
-        type: 'SKILL 2',
-        icon: Icons.not_interested_rounded,
-        description: 'Membuat karakter tak terlihat selama 1.5 detik dan kebal serangan.',
-      ),
-      CharacterSkill(
-        name: 'Segmentation Fault',
-        type: 'ULTIMATE',
-        icon: Icons.crisis_alert_rounded,
-        description: 'Tebasan fatal mematikan yang merusak struktur data musuh dalam sekejap.',
-      ),
-    ],
-  ),
-  const CharacterModel(
-    id: 4,
-    name: 'MONGO',
-    title: 'The Database Bastion',
-    role: 'Tank',
-    quote: '"Integritas data adalah benteng yang tak tergoyahkan."',
-    themeColor: Color(0xFF009688),
-    avatarIcon: Icons.dns_rounded,
-    durability: 0.95,
-    offense: 0.40,
-    skillEffect: 0.45,
-    difficulty: 0.40,
-    lore: 'Raksasa yang terbuat dari lempengan server terdistribusi. Menjaga record tabel penting dari ancaman serangan injeksi dan corrupt storage.',
-    isUnlocked: true,
-    skills: [
-      CharacterSkill(
-        name: 'ACID Property',
-        type: 'PASIF',
-        icon: Icons.security_rounded,
-        description: 'Kebal terhadap efek lambat (slow) dan memiliki resistensi knockback.',
-      ),
-      CharacterSkill(
-        name: 'Index Barrier',
-        type: 'SKILL 1',
-        icon: Icons.view_sidebar_rounded,
-        description: 'Memunculkan tembok partisi indeks tabel untuk menghadang laju monster.',
-      ),
-      CharacterSkill(
-        name: 'Rollback Wave',
-        type: 'SKILL 2',
-        icon: Icons.history_rounded,
-        description: 'Memulihkan 10% darah yang hilang dalam 3 detik terakhir.',
-      ),
-      CharacterSkill(
-        name: 'Schema Earthquake',
-        type: 'ULTIMATE',
-        icon: Icons.vibration_rounded,
-        description: 'Menghentakkan tanah server, memberikan stun area kepada semua bug.',
-      ),
-    ],
-  ),
-  const CharacterModel(
-    id: 5,
-    name: 'LINUS',
-    title: 'Terminal Gunslinger',
-    role: 'Marksman',
-    quote: '"Jalankan perintah dengan izin root, atau jangan sama sekali."',
-    themeColor: Color(0xFFFF9800),
-    avatarIcon: Icons.terminal_sharp,
-    durability: 0.40,
-    offense: 0.90,
-    skillEffect: 0.50,
-    difficulty: 0.55,
-    lore: 'Penembak jitu yang menguasai kernel sistem operasi. Senapan berbasis command-line miliknya menembakkan peluru string tajam dari jarak jauh.',
-    isUnlocked: false,
-    skills: [
-      CharacterSkill(
-        name: 'Sudo Privileges',
-        type: 'PASIF',
-        icon: Icons.admin_panel_settings_rounded,
-        description:
-            'Damage tembakan bertambah jika nyawa monster di bawah 30%.',
-      ),
-      CharacterSkill(
-        name: 'Grep Tracer',
-        type: 'SKILL 1',
-        icon: Icons.search_rounded,
-        description:
-            'Menembakkan peluru pelacak yang mendeteksi bug tersembunyi.',
-      ),
-      CharacterSkill(
-        name: 'Bash Burst',
-        type: 'SKILL 2',
-        icon: Icons.fast_forward_rounded,
-        description: 'Meningkatkan kecepatan tembak peluru kode sebesar 40%.',
-      ),
-      CharacterSkill(
-        name: 'Kernel Panic',
-        type: 'ULTIMATE',
-        icon: Icons.report_problem_rounded,
-        description:
-            'Hujan peluru beruntun berdaya ledak tinggi ke garis depan lawan.',
-      ),
-    ],
-  ),
-  const CharacterModel(
-    id: 6,
-    name: 'GRACE',
-    title: 'The First Debugger',
-    role: 'Marksman',
-    quote: '"Tumpas serangga pengganggu hingga baris terakhir."',
-    themeColor: Color(0xFF29B6F6),
-    avatarIcon: Icons.pest_control_rounded,
-    durability: 0.45,
-    offense: 0.85,
-    skillEffect: 0.65,
-    difficulty: 0.45,
-    lore: 'Pakar militer yang pertama kali mendokumentasikan serangga bug di relay komputer. Pemburu taktis yang mengandalkan presisi breakpoint.',
-    isUnlocked: true,
-    skills: [
-      CharacterSkill(
-        name: 'Trace Log',
-        type: 'PASIF',
-        icon: Icons.receipt_long_rounded,
-        description: 'Melihat kelemahan elemen musuh sebelum kuis dimulai.',
-      ),
-      CharacterSkill(
-        name: 'Breakpoint Trap',
-        type: 'SKILL 1',
-        icon: Icons.pause_circle_filled_rounded,
-        description: 'Memasang perangkap henti yang mengunci gerakan musuh yang melintas.',
-      ),
-      CharacterSkill(
-        name: 'Inspect Scope',
-        type: 'SKILL 2',
-        icon: Icons.center_focus_strong_rounded,
-        description: 'Memperluas jarak pandang kamera pemain sebesar 25%.',
-      ),
-      CharacterSkill(
-        name: 'Clean Hotfix',
-        type: 'ULTIMATE',
-        icon: Icons.healing_rounded,
-        description:
-            'Tembakan presisi tinggi yang melenyapkan bug seketika tanpa jeda.',
-      ),
-    ],
-  ),
-  const CharacterModel(
-    id: 7,
-    name: 'VECTOR',
-    title: 'The Array Sentinel',
-    role: 'Tank',
-    quote: '"Indeks nol adalah awal dari setiap perisai kokoh."',
-    themeColor: Color(0xFF3F51B5),
-    avatarIcon: Icons.table_chart_rounded,
-    durability: 0.90,
-    offense: 0.50,
-    skillEffect: 0.60,
-    difficulty: 0.50,
-    lore: 'Ksatria pelindung berzirah lempeng matriks berurutan. Mampu mengatur formasi bertahan dengan memposisikan struktur data array tak tertembus.',
-    isUnlocked: false,
-    skills: [
-      CharacterSkill(
-        name: 'Zero-Based Guard',
-        type: 'PASIF',
-        icon: Icons.numbers_rounded,
-        description: 'Serangan pertama yang diterima selalu dikurangi 50%.',
-      ),
-      CharacterSkill(
-        name: 'Stack Push',
-        type: 'SKILL 1',
-        icon: Icons.publish_rounded,
-        description: 'Mendorong musuh ke belakang dan memberikan efek stun.',
-      ),
-      CharacterSkill(
-        name: 'Queue Barrier',
-        type: 'SKILL 2',
-        icon: Icons.format_list_bulleted_rounded,
-        description: 'Membuka dinding pelindung yang melindungi anggota tim di belakangnya.',
-      ),
-      CharacterSkill(
-        name: 'Heap Sort Crush',
-        type: 'ULTIMATE',
-        icon: Icons.sort_rounded,
-        description: 'Menyusun ulang rintangan di sekitar dan membanting semua bug ke tengah.',
-      ),
-    ],
-  ),
-  const CharacterModel(
-    id: 8,
-    name: 'TURING',
-    title: 'The Enigma Machine',
-    role: 'Mage',
-    quote: '"Bahkan teka-teki paling rumit memiliki pola tersembunyi."',
-    themeColor: Color(0xFFFFC107),
-    avatarIcon: Icons.psychology_rounded,
-    durability: 0.50,
-    offense: 0.60,
-    skillEffect: 0.90,
-    difficulty: 0.90,
-    lore: 'Cendekiawan pemecah sandi rahasia. Mesin komputasi abstrak miliknya mampu memprediksi pola serangan musuh dan membongkar enkripsi tersulit.',
-    isUnlocked: false,
-    skills: [
-      CharacterSkill(
-        name: 'Pattern Recognition',
-        type: 'PASIF',
-        icon: Icons.grid_view_rounded,
-        description:
-            'Mendapat opsi bantuan eliminasi 1 jawaban salah saat kuis.',
-      ),
-      CharacterSkill(
-        name: 'Decryption Pulse',
-        type: 'SKILL 1',
-        icon: Icons.lock_open_rounded,
-        description:
-            'Memancarkan gelombang sonik yang melumpuhkan perisai musuh.',
-      ),
-      CharacterSkill(
-        name: 'State Transition',
-        type: 'SKILL 2',
-        icon: Icons.sync_alt_rounded,
-        description:
-            'Berpindah tempat dengan bayangan ilusi algoritma miliknya.',
-      ),
-      CharacterSkill(
-        name: 'Universal Machine',
-        type: 'ULTIMATE',
-        icon: Icons.hub_rounded,
-        description:
-            'Memprogram ulang unit musuh menjadi sekutu selama 5 detik.',
-      ),
-    ],
-  ),
-];
-
-// ---------------------------------------------------------------------------
-// SCREEN UTAMA: HERO SHOWCASE (MLBB STYLE)
-// ---------------------------------------------------------------------------
 class CharacterScreen extends StatefulWidget {
   const CharacterScreen({super.key});
 
@@ -411,372 +11,297 @@ class CharacterScreen extends StatefulWidget {
 
 class _CharacterScreenState extends State<CharacterScreen> {
   int _selectedHeroIndex = 0;
-  int _selectedSkillIndex = 0;
-  int _equippedHeroId = 1; // Default hero terpilih: STEVIE
-  String _activeRoleFilter = 'SEMUA';
+  int _selectedSkillIndex = 0; // 0: Pasif, 1: Skill 1, 2: Skill 2, 3: Ultimate
+  String _selectedRole = 'SEMUA';
 
-  final List<String> _roleFilters = [
-    'SEMUA',
-    'Fighter',
-    'Mage',
-    'Tank',
-    'Marksman',
-    'Assassin',
-    'Support',
+  // MENGHUBUNGKAN 8 GAMBAR KARAKTER ASLI DARI FOLDER ASET
+  final List<Map<String, dynamic>> _heroes = [
+    {
+      'name': 'STEVIE',
+      'title': 'The Syntax Pioneer',
+      'role': 'FIGHTER',
+      'quote': '"Satu baris kode bersih bernilai seribu perbaikan bug."',
+      'desc': 'Petualang pemula yang menguasai seni fundamental instruksi sekuensial. Selalu membawa palu kompilasi untuk merapikan blok kode yang berantakan.',
+      'durability': 0.75,
+      'offense': 0.70,
+      'skill_effects': 0.50,
+      'difficulty': 0.30,
+      'is_locked': false,
+      'is_equipped': true,
+      'color': const Color(0xFF10B981),
+      'image': 'assets/images/player/char_1.png',
+    },
+    {
+      'name': 'CIPHER',
+      'title': 'The Code Breaker',
+      'role': 'ASSASSIN',
+      'quote': '"Tidak ada enkripsi yang tidak bisa ditembus."',
+      'desc': 'Bergerak dalam bayangan syntax, menyerang bug tepat di titik lemahnya secara efisien.',
+      'durability': 0.30,
+      'offense': 0.95,
+      'skill_effects': 0.60,
+      'difficulty': 0.85,
+      'is_locked': true,
+      'is_equipped': false,
+      'color': const Color(0xFFEF4444),
+      'image': 'assets/images/player/char_2.png',
+    },
+    {
+      'name': 'ADA',
+      'title': 'The Logic Weaver',
+      'role': 'MAGE',
+      'quote': '"Logika adalah sihir yang membentuk realitas digital."',
+      'desc': 'Penyihir algoritma yang mampu memanipulasi struktur data dan variabel dari jarak jauh.',
+      'durability': 0.40,
+      'offense': 0.85,
+      'skill_effects': 0.90,
+      'difficulty': 0.60,
+      'is_locked': true,
+      'is_equipped': false,
+      'color': const Color(0xFF8B5CF6),
+      'image': 'assets/images/player/char_3.png',
+    },
+    {
+      'name': 'VECTOR',
+      'title': 'The Array Sniper',
+      'role': 'MARKSMAN',
+      'quote': '"Akurasi indeks adalah kunci dari setiap eksekusi."',
+      'desc': 'Penembak jitu yang memanfaatkan array untuk menargetkan banyak bug sekaligus.',
+      'durability': 0.40,
+      'offense': 0.85,
+      'skill_effects': 0.60,
+      'difficulty': 0.70,
+      'is_locked': true,
+      'is_equipped': false,
+      'color': const Color(0xFF3B82F6),
+      'image': 'assets/images/player/char_4.png',
+    },
+    {
+      'name': 'RUBY',
+      'title': 'The Crimson Blade',
+      'role': 'FIGHTER',
+      'quote': '"Eksekusi cepat, tanpa memory leak."',
+      'desc': 'Petarung tangkas yang mengeksekusi perulangan (loop) dengan sangat cepat.',
+      'durability': 0.80,
+      'offense': 0.85,
+      'skill_effects': 0.40,
+      'difficulty': 0.50,
+      'is_locked': true,
+      'is_equipped': false,
+      'color': const Color(0xFFE11D48),
+      'image': 'assets/images/player/char_5.png',
+    },
+    {
+      'name': 'GRACE',
+      'title': 'The Debug Healer',
+      'role': 'SUPPORT',
+      'quote': '"Setiap error mematikan pasti ada solusinya."',
+      'desc': 'Spesialis pemulihan yang mampu memperbaiki memory leak dan menyembuhkan tim.',
+      'durability': 0.60,
+      'offense': 0.30,
+      'skill_effects': 0.95,
+      'difficulty': 0.40,
+      'is_locked': true,
+      'is_equipped': false,
+      'color': const Color(0xFF06B6D4),
+      'image': 'assets/images/player/char_6.png',
+    },
+    {
+      'name': 'LINUS',
+      'title': 'The Kernel Sage',
+      'role': 'SUPPORT',
+      'quote': '"Pondasi yang kuat menghasilkan sistem yang kebal."',
+      'desc': 'Penasihat bijak yang memperkuat pertahanan sistem operasi dari serangan fatal.',
+      'durability': 0.80,
+      'offense': 0.40,
+      'skill_effects': 0.85,
+      'difficulty': 0.75,
+      'is_locked': true,
+      'is_equipped': false,
+      'color': const Color(0xFFD97706),
+      'image': 'assets/images/player/char_7.png',
+    },
+    {
+      'name': 'MONGO',
+      'title': 'The Data Titan',
+      'role': 'TANK',
+      'quote': '"Data yang masif membutuhkan pertahanan mutlak."',
+      'desc': 'Raksasa penyimpan database yang mampu menahan serangan infinite loop tanpa crash.',
+      'durability': 0.95,
+      'offense': 0.40,
+      'skill_effects': 0.40,
+      'difficulty': 0.20,
+      'is_locked': true,
+      'is_equipped': false,
+      'color': const Color(0xFF475569),
+      'image': 'assets/images/player/char_8.png',
+    },
   ];
 
-  CharacterModel get _currentHero => characterRoster[_selectedHeroIndex];
-
-  List<CharacterModel> get _filteredRoster {
-    if (_activeRoleFilter == 'SEMUA') return characterRoster;
-    return characterRoster
-        .where(
-          (hero) => hero.role.toLowerCase() == _activeRoleFilter.toLowerCase(),
-        )
-        .toList();
-  }
-
-  void _equipCharacter() {
-    if (!_currentHero.isUnlocked) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFFB71C1C),
-          content: Text(
-            'Karakter ${_currentHero.name} masih terkunci! Selesaikan level koding untuk membukanya.',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-      return;
-    }
-
-    setState(() {
-      _equippedHeroId = _currentHero.id;
-    });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        backgroundColor: const Color(0xFF2E7D32),
-        content: Text(
-          'Karakter ${_currentHero.name} berhasil dipilih untuk petualangan!',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+  final List<String> _roles = [
+    'SEMUA',
+    'FIGHTER',
+    'MAGE',
+    'TANK',
+    'MARKSMAN',
+    'ASSASSIN',
+    'SUPPORT',
+  ];
 
   @override
   Widget build(BuildContext context) {
-    final hero = _currentHero;
-    final isEquipped = _equippedHeroId == hero.id;
+    final hero = _heroes[_selectedHeroIndex];
 
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Background Rimba Utama
-          Image.asset('assets/images/bg/bg_jungle.png', fit: BoxFit.cover),
+          Image.asset(
+            'assets/images/bg/bg_jungle.png',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                Container(color: const Color(0xFF0F172A)),
+          ),
 
-          // 2. Lapisan Sinematik Gelap Khas Arena MLBB
-          Container(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                center: Alignment.center,
-                radius: 1.25,
-                colors: [
-                  const Color(0xFF0D141E).withOpacity(0.70),
-                  const Color(0xFF06090E).withOpacity(0.95),
-                ],
-              ),
+          ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+              child: Container(color: const Color(0xFF0F172A).withOpacity(0.6)),
             ),
           ),
 
-          // 3. Konten Showcase Antarmuka Game
           SafeArea(
-            child: Column(
-              children: [
-                // Top Header: Tombol Kembali, Judul, & Filter Role
-                _buildTopNavigationHeader(),
-
-                // Area Tengah: Showcase 3 Kolom
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24.0,
-                      vertical: 8.0,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // KOLOM KIRI: Identitas Hero & Radar Bar Atribut
-                        Expanded(
-                          flex: 3,
-                          child: _buildHeroAttributesPanel(hero),
-                        ),
-
-                        // KOLOM TENGAH: Panggung Visual Hero Foto Asli
-                        Expanded(
-                          flex: 4,
-                          child: _buildHeroStageCenter(hero, isEquipped),
-                        ),
-
-                        // KOLOM KANAN: Skillset & Lore Hero
-                        Expanded(flex: 3, child: _buildHeroSkillsPanel(hero)),
-                      ],
-                    ),
-                  ),
-                ),
-
-                // Area Bawah: Bar Carousel Miniatur Foto 10 Hero
-                _buildHeroSelectionCarousel(),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // KOMPONEN TOP BAR
-  // ---------------------------------------------------------------------------
-  Widget _buildTopNavigationHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: () => Navigator.pop(context),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: const Color(0xFF1E2633),
-                border: Border.all(color: const Color(0xFFFFB74D), width: 1.5),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black,
-                    offset: Offset(2, 2),
-                    blurRadius: 0,
-                  ),
-                ],
-              ),
-              child: Row(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
                 children: [
-                  const Icon(
-                    Icons.arrow_back,
-                    color: Color(0xFFFFB74D),
-                    size: 14,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'KEMBALI',
-                    style: GoogleFonts.pressStart2p(
-                      fontSize: 9,
-                      color: const Color(0xFFFFB74D),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            'HERO ROSTER',
-            style: GoogleFonts.pressStart2p(
-              fontSize: 14,
-              letterSpacing: 2,
-              color: Colors.white,
-            ),
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-            decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.5),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.white12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: _roleFilters.map((role) {
-                final isSelected = _activeRoleFilter == role;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                  child: InkWell(
-                    onTap: () {
-                      setState(() {
-                        _activeRoleFilter = role;
-                        final filtered = _filteredRoster;
-                        if (filtered.isNotEmpty) {
-                          _selectedHeroIndex = characterRoster.indexOf(
-                            filtered.first,
-                          );
-                          _selectedSkillIndex = 0;
-                        }
-                      });
-                    },
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFFFF9800)
-                            : Colors.transparent,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Text(
-                        role.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1,
-                          color: isSelected ? Colors.black : Colors.white70,
+                  // HEADER
+                  Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        borderRadius: BorderRadius.circular(50),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24, width: 1),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
                       ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ---------------------------------------------------------------------------
-  // KOMPONEN KOLOM KIRI: ATRIBUT & STATISTIK HERO
-  // ---------------------------------------------------------------------------
-  Widget _buildHeroAttributesPanel(CharacterModel hero) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: const Color(0xFF10151E).withOpacity(0.85),
-        border: Border.all(color: hero.themeColor.withOpacity(0.4), width: 1.5),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: hero.themeColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: hero.themeColor),
-                ),
-                child: Text(
-                  hero.role.toUpperCase(),
-                  style: TextStyle(
-                    color: hero.themeColor,
-                    fontSize: 9.5,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              if (!hero.isUnlocked)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.lock, color: Colors.redAccent, size: 10),
-                      SizedBox(width: 4),
-                      Text(
-                        'TERKUNCI',
+                      const SizedBox(width: 20),
+                      const Text(
+                        'HERO ROSTER',
                         style: TextStyle(
-                          color: Colors.redAccent,
-                          fontSize: 8,
-                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const Spacer(),
+
+                      // Kategori Role Filter
+                      Container(
+                        height: 40,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.white24, width: 1),
+                        ),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.horizontal,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _roles.length,
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 4),
+                          itemBuilder: (context, index) {
+                            final role = _roles[index];
+                            final isSelected = _selectedRole == role;
+                            return InkWell(
+                              onTap: () => setState(() => _selectedRole = role),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? const Color(0xFFF59E0B)
+                                      : Colors.transparent,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  role,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w900
+                                        : FontWeight.w600,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : Colors.white70,
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            hero.name,
-            style: GoogleFonts.pressStart2p(
-              fontSize: 18,
-              letterSpacing: 1.5,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 3),
-          Text(
-            hero.title,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.bold,
-              color: hero.themeColor,
-              letterSpacing: 1,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.black38,
-              borderRadius: BorderRadius.circular(6),
-              border: Border(
-                left: BorderSide(color: hero.themeColor, width: 3),
+
+                  const SizedBox(height: 24),
+
+                  // MAIN LAYOUT
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // KIRI: STATS
+                        Expanded(flex: 3, child: _buildStatsPanel(hero)),
+
+                        // TENGAH: GAMBAR KARAKTER
+                        Expanded(flex: 4, child: _buildCenterPanel(hero)),
+
+                        // KANAN: SKILLS
+                        Expanded(flex: 3, child: _buildSkillsPanel(hero)),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // ROSTER LIST BAWAH
+                  SizedBox(
+                    height: 85,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      physics: const BouncingScrollPhysics(),
+                      itemCount: _heroes.length,
+                      separatorBuilder: (context, index) =>
+                          const SizedBox(width: 16),
+                      itemBuilder: (context, index) {
+                        final h = _heroes[index];
+                        final isSelected = _selectedHeroIndex == index;
+                        // Filter by Role
+                        if (_selectedRole != 'SEMUA' &&
+                            h['role'] != _selectedRole)
+                          return const SizedBox.shrink();
+                        return _buildHeroAvatar(h, isSelected, index);
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-            child: Text(
-              hero.quote,
-              style: const TextStyle(
-                fontStyle: FontStyle.italic,
-                color: Color(0xFFCFD8DC),
-                fontSize: 10.5,
-                height: 1.35,
-              ),
-            ),
-          ),
-          const Divider(color: Colors.white12, height: 20),
-          const Text(
-            'ATRIBUT KEMAMPUAN',
-            style: TextStyle(
-              color: Colors.white54,
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
-            ),
-          ),
-          const SizedBox(height: 10),
-          _buildStatBar('Durability', hero.durability, const Color(0xFF4CAF50)),
-          _buildStatBar('Offense', hero.offense, const Color(0xFFEF5350)),
-          _buildStatBar(
-            'Skill Effects',
-            hero.skillEffect,
-            const Color(0xFF29B6F6),
-          ),
-          _buildStatBar('Difficulty', hero.difficulty, const Color(0xFFFFB74D)),
-          const Spacer(),
-          Text(
-            hero.lore,
-            maxLines: 3,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.65),
-              fontSize: 10,
-              height: 1.4,
             ),
           ),
         ],
@@ -784,9 +309,131 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  Widget _buildStatBar(String label, double value, Color barColor) {
+  // --- PANEL KIRI (STATISTIK) ---
+  Widget _buildStatsPanel(Map<String, dynamic> hero) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      // MEMPERBAIKI OVERFLOW DENGAN SCROLLVIEW
+      child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: hero['color'].withOpacity(0.15),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: hero['color'].withOpacity(0.3)),
+              ),
+              child: Text(
+                hero['role'],
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w900,
+                  color: hero['color'],
+                  letterSpacing: 1,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              hero['name'],
+              style: const TextStyle(
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                color: Color(0xFF1E293B),
+                letterSpacing: 1.5,
+              ),
+            ),
+            Text(
+              hero['title'],
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF64748B),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                border: const Border(
+                  left: BorderSide(color: Color(0xFFCBD5E1), width: 3),
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                hero['quote'],
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  color: Color(0xFF475569),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'ATRIBUT KEMAMPUAN',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: Color(0xFF94A3B8),
+                letterSpacing: 1,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildProgressBar(
+              'Durability',
+              hero['durability'],
+              const Color(0xFF10B981),
+            ),
+            _buildProgressBar(
+              'Offense',
+              hero['offense'],
+              const Color(0xFFEF4444),
+            ),
+            _buildProgressBar(
+              'Skill Effects',
+              hero['skill_effects'],
+              const Color(0xFF3B82F6),
+            ),
+            _buildProgressBar(
+              'Difficulty',
+              hero['difficulty'],
+              const Color(0xFFF59E0B),
+            ),
+            const SizedBox(height: 16), // Pengganti Spacer yang bikin error
+            Text(
+              hero['desc'],
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF64748B),
+                height: 1.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProgressBar(String label, double value, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3.5),
+      padding: const EdgeInsets.only(bottom: 12.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -796,29 +443,29 @@ class _CharacterScreenState extends State<CharacterScreen> {
               Text(
                 label,
                 style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 11,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF475569),
                 ),
               ),
               Text(
                 '${(value * 100).toInt()}%',
                 style: TextStyle(
-                  color: barColor,
-                  fontSize: 9.5,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w900,
+                  color: color,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 6),
           ClipRRect(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: value,
-              minHeight: 5,
-              backgroundColor: Colors.white10,
-              valueColor: AlwaysStoppedAnimation<Color>(barColor),
+              backgroundColor: const Color(0xFFF1F5F9),
+              valueColor: AlwaysStoppedAnimation<Color>(color),
+              minHeight: 8,
             ),
           ),
         ],
@@ -826,193 +473,109 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // KOMPONEN KOLOM TENGAH: PANGGUNG FOTO HERO ASLI
-  // ---------------------------------------------------------------------------
-  Widget _buildHeroStageCenter(CharacterModel hero, bool isEquipped) {
+  // --- PANEL TENGAH (FOTO KARAKTER & TOMBOL) ---
+  Widget _buildCenterPanel(Map<String, dynamic> hero) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              // Efek Cahaya Lingkaran Pedestal Bawah
-              Positioned(
-                bottom: 15,
-                child: Container(
-                  width: 200,
-                  height: 40,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // MENAMPILKAN GAMBAR ASLI KARAKTER
+                Container(
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    borderRadius: BorderRadius.circular(100),
+                    shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: hero.themeColor.withOpacity(0.55),
-                        blurRadius: 40,
+                        color: hero['color'].withOpacity(0.3),
+                        blurRadius: 50,
                         spreadRadius: 10,
                       ),
                     ],
                   ),
-                ),
-              ),
-
-              // Lantai Pedestal 3D Isometrik
-              Positioned(
-                bottom: 20,
-                child: Container(
-                  width: 190,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1E2633),
-                    borderRadius: BorderRadius.circular(100),
-                    border: Border.all(color: hero.themeColor, width: 2),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Colors.black87,
-                        offset: Offset(0, 8),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              // Foto Karakter PNG Penuh
-              Positioned(
-                bottom: 30,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ColorFiltered(
-                      // Efek siluet hitam jika karakter belum terbuka
-                      colorFilter: hero.isUnlocked
-                          ? const ColorFilter.mode(
-                              Colors.transparent,
-                              BlendMode.multiply,
-                            )
-                          : const ColorFilter.mode(
-                              Colors.black87,
-                              BlendMode.srcATop,
-                            ),
-                      child: Image.asset(
-                        hero.imagePath,
-                        height: 180,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) {
-                          // Tampilan fallback jika foto belum terbaca
-                          return Container(
-                            width: 120,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: hero.themeColor.withOpacity(0.2),
-                              border: Border.all(
-                                color: hero.themeColor,
-                                width: 2,
-                              ),
-                            ),
-                            child: Icon(
-                              hero.avatarIcon,
-                              size: 64,
-                              color: hero.isUnlocked
-                                  ? hero.themeColor
-                                  : Colors.white24,
-                            ),
-                          );
-                        },
+                  child: ColorFiltered(
+                    // Jika terkunci, beri efek siluet bayangan hitam legam
+                    colorFilter: hero['is_locked']
+                        ? const ColorFilter.mode(
+                            Colors.black87,
+                            BlendMode.srcATop,
+                          )
+                        : const ColorFilter.mode(
+                            Colors.transparent,
+                            BlendMode.multiply,
+                          ),
+                    child: Image.asset(
+                      hero['image'],
+                      height: 220,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.person,
+                        size: 100,
+                        color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    if (isEquipped)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E7D32),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: const Color(0xFF81C784),
-                            width: 1.5,
-                          ),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.check, color: Colors.white, size: 12),
-                            SizedBox(width: 4),
-                            Text(
-                              'SEDANG DIGUNAKAN',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 9,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
-        // Tombol Aksi Bawah
+        // Tombol Equip
         SizedBox(
           width: 220,
-          height: 42,
+          height: 48,
           child: ElevatedButton(
+            onPressed: hero['is_locked'] ? null : () {},
             style: ElevatedButton.styleFrom(
-              backgroundColor: hero.isUnlocked
-                  ? (isEquipped
-                        ? const Color(0xFF37474F)
-                        : const Color(0xFFFF9800))
-                  : const Color(0xFFB71C1C),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: BorderSide(
-                  color: hero.isUnlocked
-                      ? const Color(0xFFFFD54F)
-                      : Colors.white24,
-                  width: 1.5,
-                ),
-              ),
+              backgroundColor: hero['is_equipped']
+                  ? const Color(0xFF10B981)
+                  : Colors.white,
+              foregroundColor: hero['is_equipped']
+                  ? Colors.white
+                  : const Color(0xFF1E293B),
               elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
             ),
-            onPressed: isEquipped ? null : _equipCharacter,
             child: Text(
-              hero.isUnlocked
-                  ? (isEquipped ? 'TERPASANG' : 'GUNAKAN KARAKTER')
-                  : 'TERKUNCI 🔒',
-              style: GoogleFonts.pressStart2p(
-                fontSize: 9,
-                fontWeight: FontWeight.bold,
-                color: isEquipped ? Colors.white54 : Colors.black87,
+              hero['is_locked']
+                  ? '🔒 HERO TERKUNCI'
+                  : (hero['is_equipped']
+                        ? '✓ SEDANG DIGUNAKAN'
+                        : 'GUNAKAN HERO'),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 6),
       ],
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // KOMPONEN KOLOM KANAN: SKILLSET & KEMAMPUAN AKTIF
-  // ---------------------------------------------------------------------------
-  Widget _buildHeroSkillsPanel(CharacterModel hero) {
-    final activeSkill = hero.skills[_selectedSkillIndex];
+  // --- PANEL KANAN (SKILLS) ---
+  Widget _buildSkillsPanel(Map<String, dynamic> hero) {
+    final bool isLocked = hero['is_locked'];
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: const Color(0xFF10151E).withOpacity(0.85),
-        border: Border.all(color: hero.themeColor.withOpacity(0.4), width: 1.5),
-        borderRadius: BorderRadius.circular(14),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1020,111 +583,72 @@ class _CharacterScreenState extends State<CharacterScreen> {
           const Text(
             'KEMAMPUAN (SKILLS)',
             style: TextStyle(
-              color: Colors.white54,
-              fontSize: 9,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.2,
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF94A3B8),
+              letterSpacing: 1,
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildSkillTab(
+                0,
+                Icons.auto_awesome_rounded,
+                'PASIF',
+                hero['color'],
+              ),
+              _buildSkillTab(1, Icons.gavel_rounded, 'S1', hero['color']),
+              _buildSkillTab(2, Icons.shield_rounded, 'S2', hero['color']),
+              _buildSkillTab(3, Icons.bolt_rounded, 'S3', hero['color']),
+            ],
+          ),
+
+          const SizedBox(height: 32),
+
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: isLocked
+                  ? const Color(0xFFF1F5F9)
+                  : hero['color'].withOpacity(0.15),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              _selectedSkillIndex == 0 ? 'PASIF' : 'AKTIF',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w900,
+                color: isLocked ? const Color(0xFF94A3B8) : hero['color'],
+                letterSpacing: 1,
+              ),
             ),
           ),
           const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(hero.skills.length, (i) {
-              final skill = hero.skills[i];
-              final isSkillSelected = _selectedSkillIndex == i;
-
-              return InkWell(
-                onTap: () => setState(() => _selectedSkillIndex = i),
-                borderRadius: BorderRadius.circular(10),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 150),
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: isSkillSelected
-                        ? hero.themeColor.withOpacity(0.3)
-                        : const Color(0xFF19202C),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: isSkillSelected
-                          ? const Color(0xFFFFD54F)
-                          : Colors.white24,
-                      width: isSkillSelected ? 2 : 1,
-                    ),
-                    boxShadow: isSkillSelected
-                        ? [
-                            BoxShadow(
-                              color: const Color(0xFFFFD54F).withOpacity(0.4),
-                              blurRadius: 8,
-                            ),
-                          ]
-                        : null,
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        skill.icon,
-                        color: isSkillSelected
-                            ? const Color(0xFFFFD54F)
-                            : Colors.white70,
-                        size: 20,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        skill.type == 'PASIF' ? 'PASIF' : 'S$i',
-                        style: TextStyle(
-                          fontSize: 7.5,
-                          fontWeight: FontWeight.bold,
-                          color: isSkillSelected
-                              ? const Color(0xFFFFD54F)
-                              : Colors.white38,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }),
-          ),
-          const Divider(color: Colors.white12, height: 22),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: hero.themeColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: Text(
-              activeSkill.type,
-              style: TextStyle(
-                color: hero.themeColor,
-                fontSize: 8.5,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.2,
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
           Text(
-            activeSkill.name,
+            isLocked
+                ? 'Kemampuan Rahasia'
+                : (_selectedSkillIndex == 0
+                      ? 'Clean Code'
+                      : 'Skill Name ${_selectedSkillIndex}'),
             style: const TextStyle(
-              fontSize: 14,
+              fontSize: 20,
               fontWeight: FontWeight.w900,
-              color: Colors.white,
-              letterSpacing: 0.5,
+              color: Color(0xFF1E293B),
             ),
           ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: SingleChildScrollView(
-              child: Text(
-                activeSkill.description,
-                style: const TextStyle(
-                  color: Color(0xFFCFD8DC),
-                  fontSize: 11.5,
-                  height: 1.5,
-                ),
-              ),
+          const SizedBox(height: 12),
+          Text(
+            isLocked
+                ? 'Selesaikan lebih banyak modul dan kuis untuk membuka identitas serta kemampuan hero ini secara lengkap.'
+                : 'Setiap kali menjawab kuis tanpa kesalahan, regenerasi nyawa meningkat sebesar 15% pada level tersebut.',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF64748B),
+              height: 1.5,
             ),
           ),
         ],
@@ -1132,150 +656,140 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // KOMPONEN BAWAH: CAROUSEL 10 FOTO HERO SELECTION
-  // ---------------------------------------------------------------------------
-  Widget _buildHeroSelectionCarousel() {
-    final list = _filteredRoster;
-
-    return Container(
-      height: 82,
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFF090D14).withOpacity(0.92),
-        border: const Border(
-          top: BorderSide(color: Color(0xFF1E2633), width: 2),
+  Widget _buildSkillTab(
+    int index,
+    IconData icon,
+    String label,
+    Color activeColor,
+  ) {
+    final isSelected = _selectedSkillIndex == index;
+    return InkWell(
+      onTap: () => setState(() => _selectedSkillIndex = index),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 65,
+        height: 65,
+        decoration: BoxDecoration(
+          color: isSelected ? activeColor.withOpacity(0.1) : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? activeColor : const Color(0xFFE2E8F0),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? activeColor : const Color(0xFF94A3B8),
+              size: 24,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 9,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? activeColor : const Color(0xFF94A3B8),
+              ),
+            ),
+          ],
         ),
       ),
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        scrollDirection: Axis.horizontal,
-        itemCount: list.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final item = list[index];
-          final originalIndex = characterRoster.indexOf(item);
-          final isSelected = _selectedHeroIndex == originalIndex;
-          final isEquipped = _equippedHeroId == item.id;
+    );
+  }
 
-          return InkWell(
-            onTap: () {
-              setState(() {
-                _selectedHeroIndex = originalIndex;
-                _selectedSkillIndex = 0;
-              });
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 150),
-              width: 64,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? const Color(0xFF1C2432)
-                    : const Color(0xFF10151E),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: isSelected
-                      ? const Color(0xFFFFB74D)
-                      : (isEquipped ? const Color(0xFF4CAF50) : Colors.white12),
-                  width: isSelected ? 2.5 : 1,
-                ),
-                boxShadow: isSelected
-                    ? [
-                        BoxShadow(
-                          color: const Color(0xFFFFB74D).withOpacity(0.35),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: Stack(
-                alignment: Alignment.center,
+  // --- ROSTER LIST BAWAH ---
+  Widget _buildHeroAvatar(
+    Map<String, dynamic> hero,
+    bool isSelected,
+    int index,
+  ) {
+    return InkWell(
+      onTap: () => setState(() {
+        _selectedHeroIndex = index;
+        _selectedSkillIndex = 0;
+      }),
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: 80,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? hero['color'] : Colors.transparent,
+            width: 3,
+          ),
+          boxShadow: [
+            if (isSelected)
+              BoxShadow(color: hero['color'].withOpacity(0.4), blurRadius: 8),
+          ],
+        ),
+        child: Stack(
+          children: [
+            Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: ColorFiltered(
-                          colorFilter: item.isUnlocked
-                              ? const ColorFilter.mode(
-                                  Colors.transparent,
-                                  BlendMode.multiply,
-                                )
-                              : const ColorFilter.mode(
-                                  Colors.black87,
-                                  BlendMode.srcATop,
-                                ),
-                          child: Image.asset(
-                            item.imagePath,
-                            width: 32,
-                            height: 32,
-                            fit: BoxFit.contain,
-                            errorBuilder: (_, __, ___) => Icon(
-                              item.avatarIcon,
-                              color: item.isUnlocked
-                                  ? item.themeColor
-                                  : Colors.white24,
-                              size: 26,
-                            ),
+                  // GAMBAR MINIATURE DI LIST BAWAH
+                  ColorFiltered(
+                    colorFilter: hero['is_locked']
+                        ? const ColorFilter.mode(
+                            Colors.black38,
+                            BlendMode.srcATop,
+                          )
+                        : const ColorFilter.mode(
+                            Colors.transparent,
+                            BlendMode.multiply,
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Text(
-                        item.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 8.5,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected
-                              ? const Color(0xFFFFB74D)
-                              : Colors.white70,
-                        ),
-                      ),
-                    ],
+                    child: Image.asset(
+                      hero['image'],
+                      height: 40,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Icon(Icons.person, size: 32),
+                    ),
                   ),
-                  if (!item.isUnlocked)
-                    Positioned(
-                      top: 4,
-                      right: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                          color: Colors.black54,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.lock,
-                          color: Colors.redAccent,
-                          size: 10,
-                        ),
-                      ),
+                  const SizedBox(height: 4),
+                  Text(
+                    hero['name'],
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: FontWeight.w900,
+                      color: hero['is_locked']
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF1E293B),
                     ),
-                  if (isEquipped)
-                    Positioned(
-                      top: 4,
-                      left: 4,
-                      child: Container(
-                        padding: const EdgeInsets.all(2),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF2E7D32),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 10,
-                        ),
-                      ),
-                    ),
+                  ),
                 ],
               ),
             ),
-          );
-        },
+            if (hero['is_locked'])
+              Positioned(
+                top: 6,
+                right: 6,
+                child: Icon(
+                  Icons.lock_rounded,
+                  color: const Color(0xFFEF4444).withOpacity(0.8),
+                  size: 12,
+                ),
+              ),
+            if (hero['is_equipped'])
+              Positioned(
+                top: 6,
+                left: 6,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF10B981),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.check, color: Colors.white, size: 10),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
