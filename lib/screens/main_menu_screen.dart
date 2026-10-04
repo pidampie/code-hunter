@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -16,46 +18,44 @@ class MainMenuScreen extends StatefulWidget {
 
 class _MainMenuScreenState extends State<MainMenuScreen>
     with SingleTickerProviderStateMixin {
-  int _hoveredIndex = -1;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
-  // Daftar Menu Lengkap Code Hunter
   final List<Map<String, dynamic>> _menuList = [
     {
-      'title': 'MULAI PETUALANGAN',
+      'title': 'Mulai Petualangan',
       'subtitle': 'Jelajahi peta level & kalahkan coding bug',
       'tag': 'LEVEL MAP',
       'icon': Icons.play_arrow_rounded,
-      'color': Color(0xFF00E676),
+      'color': const Color(0xFF3B82F6),
     },
     {
-      'title': 'ROSTER KARAKTER',
-      'subtitle': 'Pilih 10 hero voxel & atur perlengkapan koding',
+      'title': 'Pilih Karakter',
+      'subtitle': 'Pilih hero voxel & atur perlengkapan koding',
       'tag': 'HEROES',
       'icon': Icons.shield_rounded,
-      'color': Color(0xFF00D2FF),
+      'color': const Color(0xFF10B981),
     },
     {
-      'title': 'KODEKS MATERI',
-      'subtitle': 'Pelajari 8 modul logika algoritma & ikuti kuis',
+      'title': 'Materi Pembelajaran',
+      'subtitle': 'Pelajari modul logika algoritma & ikuti kuis',
       'tag': '8 MODUL',
       'icon': Icons.menu_book_rounded,
-      'color': Color(0xFFFFB800),
+      'color': const Color(0xFFF59E0B),
     },
     {
-      'title': 'PENGATURAN SISTEM',
-      'subtitle': 'Sesuaikan volume suara, tema pencahayaan & teks',
+      'title': 'Pengaturan Sistem',
+      'subtitle': 'Sesuaikan volume suara, tema & teks',
       'tag': 'CONFIG',
       'icon': Icons.tune_rounded,
-      'color': Color(0xFFFF70A6),
+      'color': const Color(0xFF8B5CF6),
     },
     {
-      'title': 'KELUAR DARI GAME',
+      'title': 'Keluar Dari Game',
       'subtitle': 'Tutup sesi petualangan Code Hunter',
       'tag': 'EXIT',
       'icon': Icons.power_settings_new_rounded,
-      'color': Color(0xFFFF5252),
+      'color': const Color(0xFFEF4444),
     },
   ];
 
@@ -114,38 +114,37 @@ class _MainMenuScreenState extends State<MainMenuScreen>
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        backgroundColor: const Color(0xFF141924),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(4),
-          side: const BorderSide(color: Color(0xFFFF5252), width: 1.5),
-        ),
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text(
           'KONFIRMASI KELUAR',
           style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-            color: Color(0xFFFF5252),
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFFEF4444),
           ),
         ),
         content: const Text(
           'Apakah kamu yakin ingin mengakhiri sesi petualangan Code Hunter?',
-          style: TextStyle(color: Colors.white70, fontSize: 11.5, height: 1.4),
+          style: TextStyle(
+            color: Color(0xFF64748B),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text(
               'BATAL',
-              style: TextStyle(color: Colors.white54, fontSize: 11),
+              style: TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
             ),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFD32F2F),
-              foregroundColor: Colors.white,
+              backgroundColor: const Color(0xFFEF4444),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
+                borderRadius: BorderRadius.circular(8),
               ),
             ),
             onPressed: () {
@@ -154,7 +153,10 @@ class _MainMenuScreenState extends State<MainMenuScreen>
             },
             child: const Text(
               'KELUAR',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -168,67 +170,55 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       animation: GameSettings.instance,
       builder: (context, _) {
         final settings = GameSettings.instance;
-        final bool isDimmed = settings.isDimmedTheme;
-
-        final Color overlayColor = isDimmed
-            ? const Color(0xFF090C12).withOpacity(0.93)
-            : const Color(0xFF0E131C).withOpacity(0.86);
 
         return Scaffold(
           body: Stack(
             fit: StackFit.expand,
             children: [
-              // 1. Latar Belakang Rimba Utama
-              Image.asset('assets/images/bg/bg_jungle.png', fit: BoxFit.cover),
+              // 1. Background Foto Hutan Asli
+              Image.asset(
+                'assets/images/bg/bg_jungle.png',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) =>
+                    Container(color: const Color(0xFF0F172A)),
+              ),
 
-              // 2. Lapisan Suasana Redup vs Terang Normal
-              Container(color: overlayColor),
-
-              // 3. Efek Scanlines Layar (Jika Diaktifkan di Pengaturan)
-              if (settings.enableScanlines)
-                IgnorePointer(
+              // 2. Efek Kaca Buram yang Lebih Terang (Opacity diturunkan agar foto belakang kelihatan jelas)
+              ClipRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
                   child: Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: List.generate(
-                          120,
-                          (i) => i.isEven
-                              ? Colors.black.withOpacity(0.12)
-                              : Colors.transparent,
-                        ),
-                      ),
-                    ),
+                    color: const Color(0xFF0F172A).withOpacity(0.45),
                   ),
                 ),
+              ),
 
-              // 4. Konten Antarmuka Menu Utama
+              // 3. Konten Menu Utama
               SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32.0,
-                    vertical: 18.0,
-                  ),
-                  child: Column(
-                    children: [
-                      // HEADER BAR: Profil Pemain & Indikator Status Audio
-                      Row(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // TOP BAR
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32.0,
+                        vertical: 12.0,
+                      ),
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Kartu Identitas Petualang
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 14,
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF161C28),
+                              color: Colors.black.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: const Color(0xFF2E3B50),
-                                width: 1.5,
+                                color: Colors.white30,
+                                width: 1,
                               ),
-                              borderRadius: BorderRadius.circular(4),
                             ),
                             child: Row(
                               children: [
@@ -236,18 +226,14 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                   width: 32,
                                   height: 32,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFFB800),
-                                    borderRadius: BorderRadius.circular(4),
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 1.5,
-                                    ),
+                                    color: const Color(0xFFF59E0B),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: const Center(
                                     child: Icon(
                                       Icons.person_rounded,
-                                      color: Colors.black,
-                                      size: 20,
+                                      color: Colors.white,
+                                      size: 18,
                                     ),
                                   ),
                                 ),
@@ -258,20 +244,19 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                     Text(
                                       settings.playerName.toUpperCase(),
                                       style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 1,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
                                         color: Colors.white,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
                                     const Text(
-                                      'STATUS: APPRENTICE CODER',
+                                      'APPRENTICE CODER',
                                       style: TextStyle(
-                                        fontSize: 8.5,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF00D2FF),
-                                        letterSpacing: 0.8,
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w700,
+                                        color: Color(0xFF38BDF8),
+                                        letterSpacing: 0.5,
                                       ),
                                     ),
                                   ],
@@ -280,21 +265,20 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                             ),
                           ),
 
-                          // Indikator Cepat Mode Audio & Tema
                           Row(
                             children: [
                               Container(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 6,
+                                  horizontal: 12,
+                                  vertical: 8,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF161C28),
+                                  color: Colors.black.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
-                                    color: const Color(0xFF2E3B50),
+                                    color: Colors.white30,
                                     width: 1,
                                   ),
-                                  borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Row(
                                   children: [
@@ -302,10 +286,10 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                       settings.isBgmMuted
                                           ? Icons.volume_off
                                           : Icons.volume_up,
-                                      size: 14,
+                                      size: 16,
                                       color: settings.isBgmMuted
-                                          ? const Color(0xFFFF5252)
-                                          : const Color(0xFF00E676),
+                                          ? const Color(0xFFEF4444)
+                                          : const Color(0xFF10B981),
                                     ),
                                     const SizedBox(width: 6),
                                     Text(
@@ -313,38 +297,37 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                           ? 'BGM OFF'
                                           : 'BGM ${(settings.rawBgmVolume * 100).toInt()}%',
                                       style: const TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white70,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              const SizedBox(width: 12),
                               InkWell(
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const SettingScreen(),
-                                    ),
-                                  );
-                                },
-                                borderRadius: BorderRadius.circular(4),
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SettingScreen(),
+                                  ),
+                                ),
+                                borderRadius: BorderRadius.circular(16),
                                 child: Container(
-                                  padding: const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF1B2433),
+                                    color: Colors.black.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: const Color(0xFF384761),
+                                      color: Colors.white30,
+                                      width: 1,
                                     ),
-                                    borderRadius: BorderRadius.circular(4),
                                   ),
                                   child: const Icon(
                                     Icons.settings_rounded,
-                                    size: 16,
-                                    color: Color(0xFFFFB800),
+                                    size: 18,
+                                    color: Color(0xFFF59E0B),
                                   ),
                                 ),
                               ),
@@ -352,205 +335,255 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                           ),
                         ],
                       ),
+                    ),
 
-                      const Spacer(),
+                    // JUDUL UTAMA (Dinaikkan posisinya, ukuran diperbesar, dan ditarik ke tengah)
+                    ScaleTransition(
+                      scale: _pulseAnimation,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'CODE HUNTER',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.pressStart2p(
+                              fontSize: 42, // Diperbesar
+                              letterSpacing: 4,
+                              color: const Color(0xFFFFB800),
+                              shadows: const [
+                                Shadow(
+                                  color: Colors.black,
+                                  offset: Offset(4, 4),
+                                  blurRadius: 0,
+                                ),
+                                Shadow(
+                                  color: Color(0xFFD68B00),
+                                  offset: Offset(2, 2),
+                                  blurRadius: 0,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 18,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white24,
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              'MEDIA EDUKASI DASAR PEMROGRAMAN RPL / PPLG',
+                              style: TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 2,
+                                color: Colors.white.withOpacity(0.95),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
-                      // JUDUL HERO UTAMA & LOGO
-                      ScaleTransition(
-                        scale: _pulseAnimation,
-                        child: Column(
-                          children: [
-                            Text(
-                              'CODE HUNTER',
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.pressStart2p(
-                                fontSize: 36,
-                                letterSpacing: 5,
-                                color: const Color(0xFFFFB800),
-                                shadows: const [
-                                  Shadow(
-                                    color: Colors.black,
-                                    offset: Offset(5, 5),
-                                    blurRadius: 0,
-                                  ),
-                                  Shadow(
-                                    color: Color(0xFFD68B00),
-                                    offset: Offset(2, 2),
-                                    blurRadius: 0,
+                    // KARTU MENU MENYAMPING DI TENGAH
+                    SizedBox(
+                      height: 310,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: _menuList.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 24),
+                        itemBuilder: (context, index) {
+                          final item = _menuList[index];
+                          final Color itemColor = item['color'];
+
+                          return InkWell(
+                            onTap: () => _onMenuSelected(index),
+                            borderRadius: BorderRadius.circular(24),
+                            child: Container(
+                              width: 260,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.25),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
                                   ),
                                 ],
                               ),
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF151C28).withOpacity(0.9),
-                                border: Border.all(
-                                  color: const Color(0xFF324157),
-                                  width: 1.2,
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                'MEDIA EDUKASI DASAR PEMROGRAMAN RPL / PPLG',
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 2,
-                                  color: Colors.white.withOpacity(0.85),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 38),
-
-                      // DAFTAR MENU INTERAKTIF LENGKAP
-                      SizedBox(
-                        width: 460,
-                        child: Column(
-                          children: List.generate(_menuList.length, (index) {
-                            final item = _menuList[index];
-                            final isHovered = _hoveredIndex == index;
-                            final Color itemColor = item['color'];
-
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 11.0),
-                              child: MouseRegion(
-                                onEnter: (_) =>
-                                    setState(() => _hoveredIndex = index),
-                                onExit: (_) =>
-                                    setState(() => _hoveredIndex = -1),
-                                child: InkWell(
-                                  onTap: () => _onMenuSelected(index),
-                                  borderRadius: BorderRadius.circular(4),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 140),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 18,
-                                      vertical: 12,
-                                    ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    height: 110,
+                                    width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: isHovered
-                                          ? itemColor
-                                          : const Color(0xFF151C28)
-                                                .withOpacity(0.92),
-                                      borderRadius: BorderRadius.circular(4),
-                                      border: Border.all(
-                                        color: isHovered
-                                            ? Colors.white
-                                            : const Color(0xFF2C394F),
-                                        width: isHovered ? 2 : 1.2,
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                        colors: [
+                                          itemColor,
+                                          itemColor.withOpacity(0.7),
+                                        ],
                                       ),
-                                      boxShadow: isHovered
-                                          ? [
-                                              BoxShadow(
-                                                color: itemColor.withOpacity(
-                                                  0.35,
-                                                ),
-                                                blurRadius: 16,
-                                                spreadRadius: 1,
-                                              ),
-                                            ]
-                                          : null,
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(24),
+                                      ),
                                     ),
-                                    child: Row(
+                                    child: Stack(
                                       children: [
-                                        Icon(
-                                          item['icon'],
-                                          color: isHovered
-                                              ? Colors.black
-                                              : itemColor,
-                                          size: 20,
-                                        ),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                item['title'],
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w900,
-                                                  letterSpacing: 1.2,
-                                                  color: isHovered
-                                                      ? Colors.black
-                                                      : Colors.white,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 2),
-                                              Text(
-                                                item['subtitle'],
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: TextStyle(
-                                                  fontSize: 9.5,
-                                                  color: isHovered
-                                                      ? Colors.black87
-                                                      : Colors.white
-                                                            .withOpacity(0.5),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 7,
-                                            vertical: 3,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: isHovered
-                                                ? Colors.black.withOpacity(0.2)
-                                                : const Color(0xFF202A3C),
-                                            borderRadius: BorderRadius.circular(
-                                              2,
+                                        Positioned(
+                                          right: -10,
+                                          top: -10,
+                                          child: Icon(
+                                            item['icon'],
+                                            size: 100,
+                                            color: Colors.white.withOpacity(
+                                              0.15,
                                             ),
                                           ),
-                                          child: Text(
-                                            item['tag'],
-                                            style: TextStyle(
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.w900,
-                                              letterSpacing: 0.8,
-                                              color: isHovered
-                                                  ? Colors.black
-                                                  : itemColor,
+                                        ),
+                                        Positioned(
+                                          top: 16,
+                                          left: 16,
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
                                             ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withOpacity(
+                                                0.2,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(20),
+                                            ),
+                                            child: Text(
+                                              item['tag'],
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: 1,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Center(
+                                          child: Icon(
+                                            item['icon'],
+                                            size: 48,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
+
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            item['title'],
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w800,
+                                              color: Color(0xFF1E293B),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            item['subtitle'],
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xFF64748B),
+                                              height: 1.4,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: ElevatedButton(
+                                              onPressed: () =>
+                                                  _onMenuSelected(index),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(
+                                                  0xFFF1F5F9,
+                                                ),
+                                                foregroundColor: itemColor,
+                                                elevation: 0,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      vertical: 12,
+                                                    ),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                'BUKA MENU',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w800,
+                                                  letterSpacing: 1,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            );
-                          }),
-                        ),
+                            ),
+                          );
+                        },
                       ),
+                    ),
 
-                      const Spacer(),
-
-                      // FOOTER HINT
-                      Text(
+                    // FOOTER
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: Text(
                         'VERSI 1.0.0 EDU-RELEASE  •  FLUTTER GAME ENGINE',
                         style: TextStyle(
-                          fontSize: 9,
+                          fontSize: 10,
                           letterSpacing: 1.5,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white.withOpacity(0.35),
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white.withOpacity(0.7),
+                          shadows: const [
+                            Shadow(
+                              color: Colors.black54,
+                              offset: Offset(0, 1),
+                              blurRadius: 2,
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
