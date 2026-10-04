@@ -1,105 +1,263 @@
+import 'dart:ui';
+
+import 'package:flame/cache.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame_tiled/flame_tiled.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'game_elements.dart';
 import 'player_component.dart';
+
+class NormalizedAssetBundle extends PlatformAssetBundle {
+  @override
+  Future<ByteData> load(String key) {
+    final parts = key.split('/');
+    final resolved = <String>[];
+    for (final part in parts) {
+      if (part == '..') {
+        if (resolved.isNotEmpty) resolved.removeLast();
+      } else if (part != '.' && part.isNotEmpty) {
+        resolved.add(part);
+      }
+    }
+    return super.load(resolved.join('/'));
+  }
+}
 
 class CodeHunterGame extends FlameGame
     with HasCollisionDetection, HasKeyboardHandlerComponents {
-  final String levelName; // Contoh: 'level_1.tmx'
-  CodeHunterGame({this.levelName = 'level_1.tmx'});
+  final String levelName;
+  final VoidCallback? onLevelCompleted;
+  final void Function(EnemyComponent enemy)? onQuizEncounter;
+  final VoidCallback? onGameOver;
+
+  CodeHunterGame({
+    this.levelName = 'Level1.tmx',
+    this.onLevelCompleted,
+    this.onQuizEncounter,
+    this.onGameOver,
+  });
 
   late final World gameWorld;
   late final CameraComponent cameraComponent;
   late final PlayerComponent player;
   late TiledComponent mapComponent;
 
+  int score = 0;
+  int lives = 3;
+  late final TextComponent hudText;
+
+  @override
+  Color backgroundColor() => const Color(0xFF68BBE3);
+
   @override
   Future<void> onLoad() async {
     super.onLoad();
 
-    // 1. Inisialisasi World & Kamera Modern Flame 1.38+
     gameWorld = World();
 
-    // Resolusi virtual retro 16:9 (640x360 px) agar ringan di Core i3
+    // Resolusi kamera dekat dan pas menyorot arena permainan
     cameraComponent = CameraComponent.withFixedResolution(
-      width: 640,
-      height: 360,
+      width: 400,
+      height: 225,
       world: gameWorld,
     );
-
-    // Pasang kamera dan world ke tree Flame
     addAll([cameraComponent, gameWorld]);
 
-    // 2. Load Map Tiled (flame_tiled 3.1.2)
+    gameWorld.add(CloudsBackground());
+
     mapComponent = await TiledComponent.load(
       levelName,
-      Vector2.all(16), // Ukuran grid tile (16x16 px)
+      Vector2.all(16),
+      prefix: 'tiled/maps/',
+      images: Images(bundle: NormalizedAssetBundle()),
     );
     gameWorld.add(mapComponent);
 
-    // 3. Spawn Karakter & Rintangan dari Object Layer Tiled
     _setupObjectLayers();
+    _setupHUD();
 
-    // 4. Kamera mengunci dan mengikuti karakter
     cameraComponent.follow(player);
   }
 
+  void addScore(int amount) {
+    score += amount;
+    _updateHUD();
+  }
+
+  void loseLife() {
+    lives--;
+    _updateHUD();
+    if (lives <= 0) {
+      pauseEngine();
+      if (onGameOver != null) onGameOver!();
+    }
+  }
+
+  void triggerQuiz(EnemyComponent enemy) {
+    pauseEngine();
+    if (onQuizEncounter != null) {
+      onQuizEncounter!(enemy);
+    }
+  }
+
+  void _setupHUD() {
+    hudText = TextComponent(
+      text: 'NYAWA: ❤️️❤️❤️  |  SKOR: 0',
+      position: Vector2(14, 10),
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(color: Colors.black87, offset: Offset(1, 1), blurRadius: 3),
+          ],
+        ),
+      ),
+    );
+    cameraComponent.viewport.add(hudText);
+  }
+
+  void _updateHUD() {
+    final hearts = '❤️' * lives;
+    hudText.text = 'NYAWA: $hearts  |  SKOR: $score';
+  }
+
   void _setupObjectLayers() {
-    // A. Titik Spawn Karakter
-    final spawnLayer = mapComponent.tileMap.getLayer<ObjectGroup>('SpawnPoint');
-    Vector2 spawnPos = Vector2(100, 100); // Default cadangan
-    if (spawnLayer != null && spawnLayer.objects.isNotEmpty) {
-      final spawnObj = spawnLayer.objects.first;
-      spawnPos = Vector2(spawnObj.x, spawnObj.y);
+    final tileMap = mapComponent.tileMap;
+
+    // 1. Memuat objek koin, duri, dan garis finish dari Tiled
+    for (final layer in tileMap.map.layers) {
+      if (layer is ObjectGroup) {
+        for (final obj in layer.objects) {
+          final name = obj.name.toLowerCase();
+          final type = obj.type.toLowerCase();
+
+          // Duri jeruji putih dari Tiled
+          if (name.contains('trap') ||
+              name.contains('damage') ||
+              name.contains('duri') ||
+              name.contains('spike')) {
+            gameWorld.add(
+              TrapBlock(
+                position: Vector2(obj.x, obj.y),
+                size: Vector2(
+                  obj.width > 0 ? obj.width : 16,
+                  obj.height > 0 ? obj.height : 16,
+                ),
+              ),
+            );
+          }
+          // Koin dari Tiled
+          else if (name.contains('poin') ||
+              name.contains('coin') ||
+              name.contains('point')) {
+            gameWorld.add(
+              CoinItem(
+                position: Vector2(
+                  obj.x + (obj.width / 2),
+                  obj.y + (obj.height / 2),
+                ),
+              ),
+            );
+          }
+          // Garis finish
+          else if (name.contains('finish') || name.contains('goal')) {
+            gameWorld.add(
+              GoalBlock(
+                position: Vector2(obj.x, obj.y),
+                size: Vector2(
+                  obj.width > 0 ? obj.width : 20,
+                  obj.height > 0 ? obj.height : 20,
+                ),
+                onReached: () {
+                  if (onLevelCompleted != null) onLevelCompleted!();
+                },
+              ),
+            );
+          }
+        }
+      }
     }
 
-    player = PlayerComponent(position: spawnPos);
+    // 2. Membangun lantai solid tepat di permukaan visual tanah (menyesuaikan map)
+    // Permukaan tanah paling bawah (Y: 272)
+    gameWorld.add(
+      GroundBlock(position: Vector2(0, 272), size: Vector2(230, 48)),
+    ); // Tanah kiri
+    gameWorld.add(
+      GroundBlock(position: Vector2(260, 272), size: Vector2(70, 48)),
+    ); // Tanah tengah
+    gameWorld.add(
+      GroundBlock(position: Vector2(360, 272), size: Vector2(500, 48)),
+    ); // Tanah kanan full
+
+    // Platform gantung melayang yang bisa dilompati
+    gameWorld.add(
+      GroundBlock(position: Vector2(232, 208), size: Vector2(54, 16)),
+    ); // Platform pohon
+    gameWorld.add(
+      GroundBlock(position: Vector2(184, 144), size: Vector2(54, 16)),
+    ); // Platform tengah
+    gameWorld.add(
+      GroundBlock(position: Vector2(248, 80), size: Vector2(54, 16)),
+    ); // Platform atas
+    gameWorld.add(
+      GroundBlock(position: Vector2(392, 96), size: Vector2(40, 16)),
+    ); // Platform kanan atas
+
+    // Jeruji putih (duri pembunuh) di dalam celah tanah
+    gameWorld.add(
+      TrapBlock(position: Vector2(230, 280), size: Vector2(30, 30)),
+    );
+    gameWorld.add(
+      TrapBlock(position: Vector2(330, 280), size: Vector2(30, 30)),
+    );
+
+    // 3. Taruh karakter MENAPAK DI TANAH PALING BAWAH (di sebelah kiri tanah)
+    final spawnPos = Vector2(80, 272);
+    player = PlayerComponent(initialPos: spawnPos);
     gameWorld.add(player);
 
-    // B. Hitbox Rintangan Tanah (Collisions)
-    final collisionLayer = mapComponent.tileMap.getLayer<ObjectGroup>(
-      'Collisions',
-    );
-    if (collisionLayer != null) {
-      for (final obj in collisionLayer.objects) {
-        gameWorld.add(
-          GroundBlock(
-            position: Vector2(obj.x, obj.y),
-            size: Vector2(obj.width, obj.height),
-          ),
-        );
-      }
-    }
+    // 4. Pasang 5 Musuh tepat menapak di atas tanah & platform (sesuai panah)
+    final enemySpawns = [
+      Vector2(160, 272), // Musuh 1: Tanah bawah kiri
+      Vector2(258, 208), // Musuh 2: Platform pohon (panah kedua)
+      Vector2(210, 144), // Musuh 3: Platform tengah
+      Vector2(300, 272), // Musuh 4: Tanah bawah tengah
+      Vector2(410, 96), // Musuh 5: Platform kanan atas (panah ketiga)
+    ];
 
-    // C. Hitbox Duri / Jebakan (Traps)
-    final trapLayer = mapComponent.tileMap.getLayer<ObjectGroup>('Traps');
-    if (trapLayer != null) {
-      for (final obj in trapLayer.objects) {
-        gameWorld.add(
-          TrapBlock(
-            position: Vector2(obj.x, obj.y),
-            size: Vector2(obj.width, obj.height),
-          ),
-        );
-      }
+    for (int i = 0; i < 5; i++) {
+      gameWorld.add(EnemyComponent(position: enemySpawns[i], questionIndex: i));
     }
   }
 }
 
-// Komponen Rintangan Fisik Tanah
 class GroundBlock extends PositionComponent with CollisionCallbacks {
   GroundBlock({required super.position, required super.size}) {
     add(RectangleHitbox()..collisionType = CollisionType.passive);
   }
 }
 
-// Komponen Jebakan Duri
 class TrapBlock extends PositionComponent with CollisionCallbacks {
   TrapBlock({required super.position, required super.size}) {
+    add(RectangleHitbox()..collisionType = CollisionType.passive);
+  }
+}
+
+class GoalBlock extends PositionComponent with CollisionCallbacks {
+  final VoidCallback onReached;
+  GoalBlock({
+    required super.position,
+    required super.size,
+    required this.onReached,
+  }) {
     add(RectangleHitbox()..collisionType = CollisionType.passive);
   }
 }
