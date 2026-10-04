@@ -16,7 +16,7 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   late CodeHunterGame _game;
 
-  // Daftar 5 Soal Pemrograman
+  // Daftar 5 Soal Pemrograman (JavaScript)
   final List<Map<String, dynamic>> _questions = [
     {
       'code': 'let a = 10;\nlet b = 5;\nlet c = a + b * 2;\nconsole.log(c);',
@@ -170,9 +170,10 @@ class _GameScreenState extends State<GameScreen> {
         padding: const EdgeInsets.symmetric(vertical: 10),
       ),
       onPressed: () {
-        Navigator.pop(dialogCtx);
+        Navigator.pop(dialogCtx); // Tutup dialog
+
         if (isCorrect) {
-          enemy.onDefeated();
+          enemy.onDefeated(); // Menghapus musuh dari layar
           _game.addScore(100);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -182,8 +183,9 @@ class _GameScreenState extends State<GameScreen> {
             ),
           );
         } else {
-          _game.loseLife();
-          _game.player.respawn();
+          // PERBAIKAN: Memanggil fungsi takeDamage(), bukan respawn()
+          // Karakter akan berkurang nyawa dan berkedip kebal sementara tanpa ngulang ke titik awal.
+          _game.player.takeDamage();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Jawaban Salah! Nyawa berkurang 1.'),
@@ -192,7 +194,8 @@ class _GameScreenState extends State<GameScreen> {
             ),
           );
         }
-        _game.resumeEngine();
+
+        _game.resumeEngine(); // Lanjut jalankan game
       },
       child: Text(
         text,
@@ -227,7 +230,7 @@ class _GameScreenState extends State<GameScreen> {
             onPressed: () {
               Navigator.pop(ctx);
               setState(() {
-                _initGame(); // Muat ulang permainan
+                _initGame();
               });
             },
             child: const Text(
@@ -238,7 +241,7 @@ class _GameScreenState extends State<GameScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              Navigator.pop(context);
+              Navigator.pop(context); // Kembali ke menu
             },
             child: const Text(
               'KELUAR',
