@@ -1,8 +1,10 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'game_screen.dart';
-import 'setting_screen.dart';
+
+int globalUnlockedLevel = 1;
 
 class LevelScreen extends StatefulWidget {
   const LevelScreen({super.key});
@@ -12,240 +14,242 @@ class LevelScreen extends StatefulWidget {
 }
 
 class _LevelScreenState extends State<LevelScreen> {
-  // Daftar 8 Level Sesuai Modul Pembelajaran Code Hunter
-  final List<Map<String, dynamic>> _levels = [
-    {
-      'level': 1,
-      'title': 'Hutan Variabel',
-      'file': 'level_1.tmx',
-      'unlocked': true,
-    },
-    {
-      'level': 2,
-      'title': 'Rawa Percabangan',
-      'file': 'level_2.tmx',
-      'unlocked': false,
-    },
-    {
-      'level': 3,
-      'title': 'Lembah Perulangan',
-      'file': 'level_3.tmx',
-      'unlocked': false,
-    },
-    {
-      'level': 4,
-      'title': 'Gua Tipe Data',
-      'file': 'level_4.tmx',
-      'unlocked': false,
-    },
-    {
-      'level': 5,
-      'title': 'Kuil Logika Boolean',
-      'file': 'level_5.tmx',
-      'unlocked': false,
-    },
-    {
-      'level': 6,
-      'title': 'Danau Array & List',
-      'file': 'level_6.tmx',
-      'unlocked': false,
-    },
-    {
-      'level': 7,
-      'title': 'Puncak Fungsi & Method',
-      'file': 'level_7.tmx',
-      'unlocked': false,
-    },
-    {
-      'level': 8,
-      'title': 'Benteng Master Bug',
-      'file': 'level_8.tmx',
-      'unlocked': false,
-    },
+  final List<String> levelTitles = [
+    "Hutan Variabel Dasar",
+    "Rawa Operator Aritmatika",
+    "Lembah Perbandingan",
+    "Gua Logika Boolean",
+    "Tebing If-Else Dasar",
+    "Danau Kondisi Bersarang",
+    "Benteng Switch Case",
+    "Gurun Perulangan For",
+    "Sabana While Loop",
+    "Kuil Array Dasar",
+    "Labirin Method Array",
+    "Padang Fungsi Dasar",
+    "Puncak Parameter Fungsi",
+    "Awan Arrow Function",
+    "Pulau Objek Data",
+    "Kastil Method Objek",
+    "Hutan Array of Objects",
+    "Dimensi Manipulasi String",
+    "Jurang Error Try-Catch",
+    "Istana Master Algoritma",
   ];
-
-  void _playLevel(String mapFile) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => GameScreen(levelFile: mapFile)),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: GameSettings.instance,
-      builder: (context, _) {
-        final bool isDimmed = GameSettings.instance.isDimmedTheme;
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            'assets/images/bg/bg_jungle.png',
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) =>
+                Container(color: const Color(0xFF0F172A)),
+          ),
 
-        return Scaffold(
-          body: Stack(
-            fit: StackFit.expand,
+          ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
+              child: Container(
+                color: const Color(0xFF0F172A).withOpacity(0.65),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40.0,
+                    vertical: 20.0,
+                  ),
+                  child: Row(
+                    children: [
+                      InkWell(
+                        onTap: () => Navigator.pop(context),
+                        borderRadius: BorderRadius.circular(50),
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.white24, width: 1),
+                          ),
+                          child: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                      const Text(
+                        'PILIH ARENA PETUALANGAN',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Expanded(
+                  child: Padding(
+                    // Menambahkan padding horizontal agar grid tidak terlalu melebar ke ujung layar
+                    padding: const EdgeInsets.symmetric(horizontal: 48.0),
+                    child: GridView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 5,
+                            // Angka > 1 membuat kartu lebih pipih/pendek (tidak memanjang ke bawah)
+                            childAspectRatio: 1.25,
+                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 20,
+                          ),
+                      itemCount: 20,
+                      itemBuilder: (context, index) {
+                        return _buildLevelCard(index);
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLevelCard(int index) {
+    final bool isCompleted = index < globalUnlockedLevel - 1;
+    final bool isCurrent = index == globalUnlockedLevel - 1;
+    final bool isLocked = index > globalUnlockedLevel - 1;
+
+    Color bannerColor;
+    IconData cardIcon;
+    String statusText;
+
+    if (isCompleted) {
+      bannerColor = const Color(0xFF10B981);
+      cardIcon = Icons.check_circle_rounded;
+      statusText = 'SELESAI';
+    } else if (isCurrent) {
+      bannerColor = const Color(0xFF3B82F6);
+      cardIcon = Icons.play_arrow_rounded;
+      statusText = 'SIAP DIMAINKAN';
+    } else {
+      bannerColor = const Color(0xFF94A3B8);
+      cardIcon = Icons.lock_rounded;
+      statusText = 'TERKUNCI';
+    }
+
+    return InkWell(
+      onTap: isLocked
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      GameScreen(levelFile: 'Level1.tmx', levelIndex: index),
+                ),
+              ).then((_) => setState(() {}));
+            },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.12),
+              blurRadius: 10,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Background Game Rimba
-              Image.asset('assets/images/bg/bg_jungle.png', fit: BoxFit.cover),
-
-              // Lapisan Ambience Tema Redup vs Terang
+              // BANNER ATAS (Dibuat lebih pendek agar kartu terlihat ringkas)
               Container(
-                color: isDimmed
-                    ? const Color(0xFF0A0D13).withOpacity(0.92)
-                    : const Color(0xFF0F141C).withOpacity(0.85),
+                height: 55,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [bannerColor, bannerColor.withOpacity(0.75)],
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -8,
+                      top: -12,
+                      child: Icon(
+                        cardIcon,
+                        size: 70,
+                        color: Colors.white.withOpacity(0.15),
+                      ),
+                    ),
+                    Center(
+                      child: Icon(cardIcon, color: Colors.white, size: 28),
+                    ),
+                  ],
+                ),
               ),
 
-              SafeArea(
+              Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24.0,
-                    vertical: 14.0,
-                  ),
+                  padding: const EdgeInsets.all(12.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header Bar
-                      Row(
-                        children: [
-                          InkWell(
-                            onTap: () => Navigator.pop(context),
-                            borderRadius: BorderRadius.circular(4),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 7,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF1B2332),
-                                border: Border.all(
-                                  color: const Color(0xFF38465C),
-                                ),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: const Row(
-                                children: [
-                                  Icon(
-                                    Icons.arrow_back_ios_new_rounded,
-                                    color: Colors.white,
-                                    size: 12,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'KEMBALI',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1.2,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 18),
-                          Text(
-                            'PILIH ARENA PETUALANGAN',
-                            style: GoogleFonts.pressStart2p(
-                              fontSize: 12,
-                              color: const Color(0xFFFFB800),
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Level ${index + 1}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF1E293B),
+                        ),
                       ),
-
-                      const SizedBox(height: 24),
-
-                      // Grid Kartu Level (2 Kolom x 4 Baris)
-                      Expanded(
-                        child: GridView.builder(
-                          itemCount: _levels.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 4,
-                                crossAxisSpacing: 14,
-                                mainAxisSpacing: 14,
-                                childAspectRatio: 1.4,
-                              ),
-                          itemBuilder: (context, index) {
-                            final item = _levels[index];
-                            final bool isUnlocked = item['unlocked'] as bool;
-
-                            return InkWell(
-                              onTap: isUnlocked
-                                  ? () => _playLevel(item['file'] as String)
-                                  : null,
-                              borderRadius: BorderRadius.circular(6),
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: isUnlocked
-                                      ? const Color(0xFF161E2D)
-                                      : const Color(0xFF11141B)
-                                            .withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(6),
-                                  border: Border.all(
-                                    color: isUnlocked
-                                        ? const Color(0xFFFFB800)
-                                        : const Color(0xFF263244),
-                                    width: isUnlocked ? 2 : 1,
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(
-                                          'LVL ${item['level']}',
-                                          style: GoogleFonts.pressStart2p(
-                                            fontSize: 11,
-                                            color: isUnlocked
-                                                ? const Color(0xFFFFB800)
-                                                : Colors.white30,
-                                          ),
-                                        ),
-                                        Icon(
-                                          isUnlocked
-                                              ? Icons.play_arrow_rounded
-                                              : Icons.lock_outline_rounded,
-                                          color: isUnlocked
-                                              ? const Color(0xFF00E676)
-                                              : Colors.white24,
-                                          size: 18,
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      item['title'] as String,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: isUnlocked
-                                            ? Colors.white
-                                            : Colors.white38,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      isUnlocked
-                                          ? 'Siap Dijalankan'
-                                          : 'Terkunci',
-                                      style: TextStyle(
-                                        fontSize: 9.5,
-                                        color: isUnlocked
-                                            ? const Color(0xFF00D2FF)
-                                            : Colors.white24,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
+                      const SizedBox(height: 4),
+                      Text(
+                        isLocked
+                            ? 'Selesaikan level sebelumnya'
+                            : levelTitles[index],
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w600,
+                          color: isLocked
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF64748B),
+                          height: 1.3,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        statusText,
+                        style: TextStyle(
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w800,
+                          color: bannerColor,
+                          letterSpacing: 0.5,
                         ),
                       ),
                     ],
@@ -254,8 +258,8 @@ class _LevelScreenState extends State<LevelScreen> {
               ),
             ],
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }
