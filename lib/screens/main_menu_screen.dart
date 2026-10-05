@@ -8,6 +8,8 @@ import 'character_screen.dart';
 import 'level_screen.dart';
 import 'materi_screen.dart';
 import 'setting_screen.dart';
+import 'daily_challenge_screen.dart';
+import 'profile_screen.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -21,6 +23,8 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
+  int _userCoins = 350;
+
   final List<Map<String, dynamic>> _menuList = [
     {
       'title': 'Mulai Petualangan',
@@ -31,7 +35,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
     },
     {
       'title': 'Pilih Karakter',
-      'subtitle': 'Pilih hero voxel & atur perlengkapan koding',
+      'subtitle': 'Buka hero baru menggunakan koin emas',
       'tag': 'HEROES',
       'icon': Icons.shield_rounded,
       'color': const Color(0xFF10B981),
@@ -42,6 +46,13 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       'tag': '8 MODUL',
       'icon': Icons.menu_book_rounded,
       'color': const Color(0xFFF59E0B),
+    },
+    {
+      'title': 'Tantangan Harian',
+      'subtitle': 'Selesaikan misi harian & kumpulkan koin',
+      'tag': 'DAILY QUEST',
+      'icon': Icons.emoji_events_rounded,
+      'color': const Color(0xFFEAB308),
     },
     {
       'title': 'Pengaturan Sistem',
@@ -101,10 +112,16 @@ class _MainMenuScreenState extends State<MainMenuScreen>
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const SettingScreen()),
+          MaterialPageRoute(builder: (_) => const DailyChallengeScreen()),
         );
         break;
       case 4:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const SettingScreen()),
+        );
+        break;
+      case 5:
         _showExitConfirmationDialog();
         break;
     }
@@ -175,15 +192,12 @@ class _MainMenuScreenState extends State<MainMenuScreen>
           body: Stack(
             fit: StackFit.expand,
             children: [
-              // 1. Background Foto Hutan Asli
               Image.asset(
                 'assets/images/bg/bg_jungle.png',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) =>
                     Container(color: const Color(0xFF0F172A)),
               ),
-
-              // 2. Efek Kaca Buram yang Lebih Terang (Opacity diturunkan agar foto belakang kelihatan jelas)
               ClipRect(
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
@@ -192,398 +206,456 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                   ),
                 ),
               ),
-
-              // 3. Konten Menu Utama
               SafeArea(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // TOP BAR
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 32.0,
-                        vertical: 12.0,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: Colors.white30,
-                                width: 1,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF59E0B),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.person_rounded,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      settings.playerName.toUpperCase(),
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w800,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    const Text(
-                                      'APPRENTICE CODER',
-                                      style: TextStyle(
-                                        fontSize: 9,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF38BDF8),
-                                        letterSpacing: 0.5,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          Row(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
                             children: [
-                              Container(
+                              // TOP BAR
+                              Padding(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.white30,
-                                    width: 1,
-                                  ),
+                                  horizontal: 32.0,
+                                  vertical: 12.0,
                                 ),
                                 child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Icon(
-                                      settings.isBgmMuted
-                                          ? Icons.volume_off
-                                          : Icons.volume_up,
-                                      size: 16,
-                                      color: settings.isBgmMuted
-                                          ? const Color(0xFFEF4444)
-                                          : const Color(0xFF10B981),
+                                    InkWell(
+                                      onTap: () => Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => const ProfileScreen(),
+                                        ),
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withOpacity(0.3),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          border: Border.all(
+                                            color: Colors.white30,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 32,
+                                              height: 32,
+                                              decoration: BoxDecoration(
+                                                color: Colors.transparent, // Background dihapus
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                image: const DecorationImage(
+                                                  image: AssetImage(
+                                                    'assets/images/player/char_1.png',
+                                                  ),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  settings.playerName
+                                                      .toUpperCase(),
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w800,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 2),
+                                                const Text(
+                                                  'LIHAT PROFIL',
+                                                  style: TextStyle(
+                                                    fontSize: 9,
+                                                    fontWeight: FontWeight.w700,
+                                                    color: Color(0xFF38BDF8),
+                                                    letterSpacing: 0.5,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
                                     ),
-                                    const SizedBox(width: 6),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.3,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              16,
+                                            ),
+                                            border: Border.all(
+                                              color: const Color(0xFFFDE68A)
+                                                  .withOpacity(0.5),
+                                              width: 1,
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.monetization_on_rounded,
+                                                color: Color(0xFFFCD34D),
+                                                size: 16,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                '$_userCoins',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w900,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        InkWell(
+                                          onTap: () => Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const SettingScreen(),
+                                            ),
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          child: Container(
+                                            padding: const EdgeInsets.all(10),
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withOpacity(
+                                                0.3,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                              border: Border.all(
+                                                color: Colors.white30,
+                                                width: 1,
+                                              ),
+                                            ),
+                                            child: const Icon(
+                                              Icons.settings_rounded,
+                                              size: 18,
+                                              color: Color(0xFFF59E0B),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const Spacer(),
+                              ScaleTransition(
+                                scale: _pulseAnimation,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
                                     Text(
-                                      settings.isBgmMuted
-                                          ? 'BGM OFF'
-                                          : 'BGM ${(settings.rawBgmVolume * 100).toInt()}%',
-                                      style: const TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: Colors.white,
+                                      'CODE HUNTER',
+                                      textAlign: TextAlign.center,
+                                      style: GoogleFonts.pressStart2p(
+                                        fontSize: 42,
+                                        letterSpacing: 4,
+                                        color: const Color(0xFFFFB800),
+                                        shadows: const [
+                                          Shadow(
+                                            color: Colors.black,
+                                            offset: Offset(4, 4),
+                                            blurRadius: 0,
+                                          ),
+                                          Shadow(
+                                            color: Color(0xFFD68B00),
+                                            offset: Offset(2, 2),
+                                            blurRadius: 0,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 18,
+                                        vertical: 8,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.4),
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: Colors.white24,
+                                          width: 1,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'MEDIA EDUKASI DASAR PEMROGRAMAN RPL / PPLG',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 2,
+                                          color: Colors.white.withOpacity(0.95),
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              InkWell(
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const SettingScreen(),
+                              const Spacer(),
+
+                              // KARTU MENU (Diperbesar kembali tingginya menjadi 310)
+                              SizedBox(
+                                height: 310,
+                                child: ListView.separated(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 32.0,
                                   ),
+                                  scrollDirection: Axis.horizontal,
+                                  physics: const BouncingScrollPhysics(),
+                                  itemCount: _menuList.length,
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(width: 24),
+                                  itemBuilder: (context, index) {
+                                    final item = _menuList[index];
+                                    final Color itemColor = item['color'];
+
+                                    return InkWell(
+                                      onTap: () => _onMenuSelected(index),
+                                      borderRadius: BorderRadius.circular(24),
+                                      child: Container(
+                                        width: 260,
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            24,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(
+                                                0.25,
+                                              ),
+                                              blurRadius: 20,
+                                              offset: const Offset(0, 10),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              height: 110,
+                                              width: double.infinity,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                  colors: [
+                                                    itemColor,
+                                                    itemColor.withOpacity(0.7),
+                                                  ],
+                                                ),
+                                                borderRadius:
+                                                    const BorderRadius.vertical(
+                                                      top: Radius.circular(24),
+                                                    ),
+                                              ),
+                                              child: Stack(
+                                                children: [
+                                                  Positioned(
+                                                    right: -10,
+                                                    top: -10,
+                                                    child: Icon(
+                                                      item['icon'],
+                                                      size: 100,
+                                                      color: Colors.white
+                                                          .withOpacity(0.15),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    top: 16,
+                                                    left: 16,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            horizontal: 12,
+                                                            vertical: 6,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white
+                                                            .withOpacity(0.2),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              20,
+                                                            ),
+                                                      ),
+                                                      child: Text(
+                                                        item['tag'],
+                                                        style: const TextStyle(
+                                                          color: Colors.white,
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          letterSpacing: 1,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Center(
+                                                    child: Icon(
+                                                      item['icon'],
+                                                      size: 48,
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(
+                                                  16.0,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      item['title'],
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                        color: Color(
+                                                          0xFF1E293B,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 6),
+                                                    Text(
+                                                      item['subtitle'],
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        fontSize: 11,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: Color(
+                                                          0xFF64748B,
+                                                        ),
+                                                        height: 1.4,
+                                                      ),
+                                                    ),
+                                                    const Spacer(),
+                                                    SizedBox(
+                                                      width: double.infinity,
+                                                      child: ElevatedButton(
+                                                        onPressed: () =>
+                                                            _onMenuSelected(
+                                                              index,
+                                                            ),
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              const Color(
+                                                                0xFFF1F5F9,
+                                                              ),
+                                                          foregroundColor:
+                                                              itemColor,
+                                                          elevation: 0,
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                vertical: 12,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  10,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        child: const Text(
+                                                          'BUKA MENU',
+                                                          style: TextStyle(
+                                                            fontSize: 11,
+                                                            fontWeight:
+                                                                FontWeight.w800,
+                                                            letterSpacing: 1,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                borderRadius: BorderRadius.circular(16),
-                                child: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(16),
-                                    border: Border.all(
-                                      color: Colors.white30,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  child: const Icon(
-                                    Icons.settings_rounded,
-                                    size: 18,
-                                    color: Color(0xFFF59E0B),
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  top: 24.0,
+                                  bottom: 12.0,
+                                ),
+                                child: Text(
+                                  'VERSI 1.0.0 EDU-RELEASE  •  FLUTTER GAME ENGINE',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    letterSpacing: 1.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white.withOpacity(0.7),
+                                    shadows: const [
+                                      Shadow(
+                                        color: Colors.black54,
+                                        offset: Offset(0, 1),
+                                        blurRadius: 2,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    ),
-
-                    // JUDUL UTAMA (Dinaikkan posisinya, ukuran diperbesar, dan ditarik ke tengah)
-                    ScaleTransition(
-                      scale: _pulseAnimation,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'CODE HUNTER',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.pressStart2p(
-                              fontSize: 42, // Diperbesar
-                              letterSpacing: 4,
-                              color: const Color(0xFFFFB800),
-                              shadows: const [
-                                Shadow(
-                                  color: Colors.black,
-                                  offset: Offset(4, 4),
-                                  blurRadius: 0,
-                                ),
-                                Shadow(
-                                  color: Color(0xFFD68B00),
-                                  offset: Offset(2, 2),
-                                  blurRadius: 0,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.4),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.white24,
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              'MEDIA EDUKASI DASAR PEMROGRAMAN RPL / PPLG',
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 2,
-                                color: Colors.white.withOpacity(0.95),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // KARTU MENU MENYAMPING DI TENGAH
-                    SizedBox(
-                      height: 310,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
-                        scrollDirection: Axis.horizontal,
-                        physics: const BouncingScrollPhysics(),
-                        itemCount: _menuList.length,
-                        separatorBuilder: (context, index) =>
-                            const SizedBox(width: 24),
-                        itemBuilder: (context, index) {
-                          final item = _menuList[index];
-                          final Color itemColor = item['color'];
-
-                          return InkWell(
-                            onTap: () => _onMenuSelected(index),
-                            borderRadius: BorderRadius.circular(24),
-                            child: Container(
-                              width: 260,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(24),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.25),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 10),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    height: 110,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topLeft,
-                                        end: Alignment.bottomRight,
-                                        colors: [
-                                          itemColor,
-                                          itemColor.withOpacity(0.7),
-                                        ],
-                                      ),
-                                      borderRadius: const BorderRadius.vertical(
-                                        top: Radius.circular(24),
-                                      ),
-                                    ),
-                                    child: Stack(
-                                      children: [
-                                        Positioned(
-                                          right: -10,
-                                          top: -10,
-                                          child: Icon(
-                                            item['icon'],
-                                            size: 100,
-                                            color: Colors.white.withOpacity(
-                                              0.15,
-                                            ),
-                                          ),
-                                        ),
-                                        Positioned(
-                                          top: 16,
-                                          left: 16,
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.white.withOpacity(
-                                                0.2,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                                              item['tag'],
-                                              style: const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.bold,
-                                                letterSpacing: 1,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        Center(
-                                          child: Icon(
-                                            item['icon'],
-                                            size: 48,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            item['title'],
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w800,
-                                              color: Color(0xFF1E293B),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 6),
-                                          Text(
-                                            item['subtitle'],
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF64748B),
-                                              height: 1.4,
-                                            ),
-                                          ),
-                                          const Spacer(),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            child: ElevatedButton(
-                                              onPressed: () =>
-                                                  _onMenuSelected(index),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color(
-                                                  0xFFF1F5F9,
-                                                ),
-                                                foregroundColor: itemColor,
-                                                elevation: 0,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      vertical: 12,
-                                                    ),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                'BUKA MENU',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w800,
-                                                  letterSpacing: 1,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    // FOOTER
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: Text(
-                        'VERSI 1.0.0 EDU-RELEASE  •  FLUTTER GAME ENGINE',
-                        style: TextStyle(
-                          fontSize: 10,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white.withOpacity(0.7),
-                          shadows: const [
-                            Shadow(
-                              color: Colors.black54,
-                              offset: Offset(0, 1),
-                              blurRadius: 2,
-                            ),
-                          ],
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ],
