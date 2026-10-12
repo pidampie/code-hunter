@@ -200,7 +200,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
               ),
               ClipRect(
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12.0, sigmaY: 12.0),
+                  filter: ImageFilter.blur(sigmaX: 3.0, sigmaY: 3.0),
                   child: Container(
                     color: const Color(0xFF0F172A).withOpacity(0.45),
                   ),
