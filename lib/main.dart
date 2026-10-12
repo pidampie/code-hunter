@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
-import 'screens/landing_page.dart';
+import 'screens/landing_page_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +23,7 @@ class CodeHunterApp extends StatelessWidget {
       title: 'Code Hunter',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(scaffoldBackgroundColor: const Color(0xFFF5F7F8)),
-      home: const LandingPage(),
+      home: const LandingPageScreen(),
     );
   }
 }
