@@ -1,98 +1,104 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 
-import 'main_menu_screen.dart';
+import 'main_menu_screen.dart'; // Sesuaikan jika path file MainMenuScreen berbeda
 
-class LandingPage extends StatefulWidget {
-  const LandingPage({super.key});
+class LandingPageScreen extends StatefulWidget {
+  const LandingPageScreen({super.key});
 
   @override
-  State<LandingPage> createState() => _LandingPageState();
+  State<LandingPageScreen> createState() => _LandingPageScreenState();
 }
 
-class _LandingPageState extends State<LandingPage> {
-  double _progress = 0.0;
-  Timer? _timer;
+class _LandingPageScreenState extends State<LandingPageScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _startLoading();
-  }
-
-  void _startLoading() {
-    // Simulasi loading bar tipis berjalan halus (~2.5 detik)
-    _timer = Timer.periodic(const Duration(milliseconds: 25), (timer) {
-      setState(() {
-        if (_progress < 1.0) {
-          _progress += 0.01;
-        } else {
-          _progress = 1.0;
-          _timer?.cancel();
-          _navigateToMenu();
-        }
-      });
-    });
-  }
-
-  void _navigateToMenu() {
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        transitionDuration: const Duration(milliseconds: 700),
-        pageBuilder: (_, __, ___) => MainMenuScreen(),
-        transitionsBuilder: (_, animation, __, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
+    // Mengatur durasi loading selama 1.5 detik
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
     );
+
+    // Mendengarkan perubahan nilai animasi untuk memperbarui tampilan
+    _controller.addListener(() {
+      setState(() {});
+    });
+
+    // Ketika animasi selesai (mencapai 100%), pindah ke Main Menu
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            PageRouteBuilder(
+              transitionDuration: const Duration(milliseconds: 600),
+              pageBuilder: (_, __, ___) => const MainMenuScreen(),
+              transitionsBuilder: (_, animation, __, child) {
+                return FadeTransition(opacity: animation, child: child);
+              },
+            ),
+          );
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _controller.dispose();
     super.dispose();
+  }
+
+  void _startLoading() {
+    if (_isLoading) return; // Mencegah klik berulang saat sedang memuat
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    _controller.forward(); // Memulai jalannya animasi dari 0.0 ke 1.0
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          // Background Fullscreen
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/bg/bg_jungle.png',
-              fit: BoxFit.cover,
+          // 1. GAMBAR LATAR BELAKANG UTUH (Polosan, tanpa lapisan gelap)
+          Image.asset('assets/images/bg/landing_bg.png', fit: BoxFit.cover),
+
+          // 2. AREA KLIK (Seluruh layar bisa disentuh untuk mulai)
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _startLoading,
+              splashColor: Colors.white.withOpacity(0.1),
+              highlightColor: Colors.transparent,
             ),
           ),
 
-          // Loading Bar Tipis & Minimalis di Bawah Center
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 28.0),
-              child: Container(
-                width: 200,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.45),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: LinearProgressIndicator(
-                    value: _progress,
-                    backgroundColor: Colors.transparent,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFF4CAF50), // Hijau aksen game yang kontras
-                    ),
-                  ),
-                ),
+          // 3. GARIS LOADING MINIMALIS DI BAGIAN PALING BAWAH
+          if (_isLoading)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: LinearProgressIndicator(
+                value: _controller
+                    .value, // Nilai otomatis bergerak dari 0.0 ke 1.0
+                backgroundColor: Colors.black45,
+                color: const Color(
+                  0xFFE65100,
+                ), // Warna oranye tua ala Minecraft
+                minHeight: 6, // Ketebalan garis bawah
               ),
             ),
-          ),
         ],
       ),
     );

@@ -77,9 +77,25 @@ class EnemyComponent extends PositionComponent
     }
   }
 
-  // FUNGSI INI WAJIB ADA AGAR TIDAK ERROR DI GAME SCREEN
+  // FUNGSI SAAT MUSUH DIKALAHKAN LEWAT KUIS
   void onDefeated() {
     removeFromParent();
+
+    // Cek apakah masih ada musuh lain yang tersisa di map
+    final remainingEnemies = game.gameWorld.children
+        .whereType<EnemyComponent>()
+        .where((e) => e != this)
+        .toList();
+
+    // Jika semua musuh sudah dikalahkan, munculkan dialog Menang & putar win.mp3
+    if (remainingEnemies.isEmpty) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        game.pauseEngine();
+        if (game.onLevelCompleted != null) {
+          game.onLevelCompleted!();
+        }
+      });
+    }
   }
 }
 

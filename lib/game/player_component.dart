@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../utils/audio_manager.dart'; // <-- IMPORT AUDIO MANAGER
 import 'code_hunter_game.dart';
 import 'game_elements.dart';
 
@@ -60,6 +61,9 @@ class PlayerComponent extends PositionComponent
             keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
             keysPressed.contains(LogicalKeyboardKey.keyW)) &&
         isOnGround) {
+      // 1. SUARA SAAT KARAKTER MELOMPAT (jump.mp3)
+      AudioManager.instance.playJump();
+
       velocity.y = jumpForce;
       isOnGround = false;
     }
@@ -91,35 +95,41 @@ class PlayerComponent extends PositionComponent
 
     if (isHurt) {
       hurtTimer -= dt;
-      if (spriteComponent != null)
+      if (spriteComponent != null) {
         spriteComponent!.opacity = (hurtTimer * 10).toInt() % 2 == 0
             ? 0.3
             : 1.0;
+      }
       if (hurtTimer <= 0) {
         isHurt = false;
         if (spriteComponent != null) spriteComponent!.opacity = 1.0;
       }
     }
 
-    if (!isOnGround)
+    if (!isOnGround) {
       velocity.y += gravity * dt;
-    else
+    } else {
       velocity.y = 0;
+    }
 
     velocity.x = horizontalInput * moveSpeed;
     position += velocity * dt;
 
     if (position.x < size.x / 2) position.x = size.x / 2;
-    if (position.x > game.mapWidth - (size.x / 2))
+    if (position.x > game.mapWidth - (size.x / 2)) {
       position.x = game.mapWidth - (size.x / 2);
+    }
 
-    if (horizontalInput < 0 && !isFlippedHorizontally)
+    if (horizontalInput < 0 && !isFlippedHorizontally) {
       flipHorizontally();
-    else if (horizontalInput > 0 && isFlippedHorizontally)
+    } else if (horizontalInput > 0 && isFlippedHorizontally) {
       flipHorizontally();
+    }
 
     if (position.y >
         game.cameraComponent.viewfinder.visibleWorldRect.bottom + 50) {
+      // Suara hurt jika karakter jatuh ke jurang
+      AudioManager.instance.playHurt();
       game.loseLife();
       position = initialPos.clone();
       velocity.setZero();
@@ -149,18 +159,27 @@ class PlayerComponent extends PositionComponent
       }
     }
 
+    // 2. SUARA SAAT MENGENAI MONSTER TANPA MENEMBAK / KENA JEBAKAN (hurt.mp3)
     if (other is TrapBlock || other is EnemyComponent) {
+      if (!isHurt) {
+        AudioManager.instance.playHurt();
+      }
       takeDamage();
     }
+
+    // 3. SUARA SAAT MENYENTUH KOIN (coin.mp3)
     if (other is CoinItem) {
+      AudioManager.instance.playCoin();
       game.addScore(10);
       other.removeFromParent();
     }
     if (other is GemItem) {
+      AudioManager.instance.playCoin();
       game.addScore(50);
       other.removeFromParent();
     }
     if (other is HeartItem) {
+      AudioManager.instance.playCoin();
       game.addLife(1);
       other.removeFromParent();
     }

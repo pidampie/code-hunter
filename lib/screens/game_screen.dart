@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../game/code_hunter_game.dart';
 import '../game/game_elements.dart';
-// IMPORT FILE LEVEL SCREEN UNTUK MENGAKSES VARIABEL GLOBAL
+import '../utils/audio_manager.dart';
+
 import 'level_screen.dart';
 
 class GameScreen extends StatefulWidget {
@@ -721,6 +722,9 @@ class _GameScreenState extends State<GameScreen> {
         Navigator.pop(dialogCtx);
 
         if (isCorrect) {
+          // 1. SUARA JAWABAN BENAR (succes game.mp3)
+          AudioManager.instance.playQuizCorrect();
+
           enemy.onDefeated();
           _game.addScore(100);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -734,6 +738,9 @@ class _GameScreenState extends State<GameScreen> {
             ),
           );
         } else {
+          // 2. SUARA JAWABAN SALAH (eror.mp3)
+          AudioManager.instance.playQuizWrong();
+
           _game.player.takeDamage();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -757,6 +764,9 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showGameOverDialog() {
+    // 3. SUARA GAME OVER / NYAWA HABIS (fail.mp3)
+    AudioManager.instance.playGameOver();
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -813,8 +823,10 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showWinDialog() {
+    // 4. SUARA MENANG LEVEL (win.mp3)
+    AudioManager.instance.playLevelWin();
+
     // LOGIKA UNLOCK LEVEL:
-    // Jika pemain berhasil menyelesaikan level ini dan level selanjutnya masih terkunci, buka level tersebut!
     if (widget.levelIndex + 1 == globalUnlockedLevel &&
         globalUnlockedLevel < 20) {
       globalUnlockedLevel++;
@@ -845,7 +857,7 @@ class _GameScreenState extends State<GameScreen> {
         actions: [
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981), // Tombol hijau sukses
+              backgroundColor: const Color(0xFF10B981),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             ),
             onPressed: () {
