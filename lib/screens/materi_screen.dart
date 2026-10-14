@@ -426,7 +426,7 @@ Predikat   : B (Kompeten)''',
       title: 'Struktur Perulangan (Loop)',
       subtitle: 'Otomatisasi eksekusi perintah berulang kali secara efisien tanpa duplikasi kode.',
       duration: '15 Menit Baca',
-      icon: Icons.PublishedWithChanges_rounded,
+      icon: Icons.published_with_changes_rounded,
       themeColor: Color(0xFF06B6D4),
       definition: 'Perulangan (Looping / Iteration) adalah instruksi yang memerintahkan komputer untuk menjalankan suatu blok kode secara berulang-ulang selama kondisi tertentu masih bernilai benar (true). Bayangkan jika kamu diminta mencetak nomor antrean dari 1 sampai 1.000; tanpa perulangan, kamu harus menulis 1.000 baris console.log(). Dengan perulangan, tugas tersebut selesai hanya dalam 3 baris kode.\n\nSetiap perulangan yang sehat wajib memiliki tiga komponen: nilai awal (inisialisasi), syarat berhenti (kondisi terminasi), dan perubahan nilai pencacah (increment/decrement) agar tidak terjebak dalam perulangan tak berujung (Infinite Loop) yang membuat aplikasi macet.',
       types: [
@@ -705,7 +705,6 @@ Status Pemeriksaan: Selesai.''',
           ),
           ClipRect(
             child: BackdropFilter(
-              // Blur dikurangi ke 3.5 agar pemandangan belakang tetap terlihat jelas
               filter: ImageFilter.blur(sigmaX: 3.5, sigmaY: 3.5),
               child: Container(
                 color: const Color(0xFF0F172A).withOpacity(0.28),
@@ -790,7 +789,7 @@ Status Pemeriksaan: Selesai.''',
                         child: Row(
                           children: [
                             const Icon(
-                              Icons.FactCheck_rounded,
+                              Icons.fact_check_rounded,
                               color: Color(0xFF38BDF8),
                               size: 16,
                             ),
@@ -823,8 +822,6 @@ Status Pemeriksaan: Selesai.''',
                     separatorBuilder: (_, __) => const SizedBox(width: 20),
                     itemBuilder: (context, index) {
                       final module = _modules[index];
-                      // Semua modul dibuka atau berurutan; di sini kita izinkan akses
-                      // modul yang sudah terbuka (index <= globalCompletedModules)
                       final bool isCompleted = index < globalCompletedModules;
                       final bool isUnlocked = index <= globalCompletedModules;
 
@@ -1509,7 +1506,7 @@ class _ModuleReaderDialogState extends State<_ModuleReaderDialog> {
                                 const Row(
                                   children: [
                                     Icon(
-                                      Icons.SubdirectoryArrowRight_rounded,
+                                      Icons.subdirectory_arrow_right_rounded,
                                       size: 15,
                                       color: Color(0xFF059669),
                                     ),
