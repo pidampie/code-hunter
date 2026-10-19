@@ -1,10 +1,10 @@
-# 🎮 Code Hunter: Game Edukasi 2D Pembelajaran Fundamental Pemrograman
+# CODE HUNTER: GAME EDUKASI 2D BERBASIS ANDROID UNTUK PEMBELAJARAN FUNDAMENTAL PEMOGRAMAN BAGI SISWA SMK PENGEMBANGAN PERANGKAT LUNAK DAN GIM
 
 **Code Hunter** adalah aplikasi _game_ edukasi dua dimensi (2D) bergenre _action-platformer_ berbasis Android yang dirancang khusus untuk membantu siswa SMK jurusan **Pengembangan Perangkat Lunak dan Gim (PPLG) / Rekayasa Perangkat Lunak (RPL)** dalam mempelajari serta menguji pemahaman materi fundamental pemrograman secara interaktif.
 
 ---
 
-## 👩‍💻 Identitas Pengembang
+## Identitas Pengembang
 
 - **Nama Lengkap:** Fida Enjellia Anggoroning Ayu
 - **NPM:** 2413025034
@@ -14,7 +14,7 @@
 
 ---
 
-## 📖 Ringkasan Aplikasi & Latar Belakang Masalah
+## Ringkasan Aplikasi & Latar Belakang Masalah
 
 Kemudahan akses kecerdasan buatan saat ini sering kali membuat pelajar mengambil jawaban instan tanpa melalui proses berpikir analitis dan pemecahan masalah (_problem solving_). Padahal, pembelajaran dasar pemrograman menuntut latihan logika, pemahaman sintaks, serta penelusuran kesalahan (_debugging_) secara mandiri.
 
@@ -27,25 +27,71 @@ Kemudahan akses kecerdasan buatan saat ini sering kali membuat pelajar mengambil
 
 ---
 
-## 🖼️ Tangkapan Layar Antarmuka (Screenshots)
+## Tangkapan Layar Antarmuka (Screenshots)
 
-|           Halaman Pembuka (_Landing Page_)           |            Menu Utama (_Main Menu_)            |
-| :--------------------------------------------------: | :--------------------------------------------: |
-| ![Landing Page](assets/screenshots/landing_page.png) | ![Main Menu](assets/screenshots/main_menu.png) |
+### 1. Halaman Pembuka, Menu Utama, & Profil Siswa
 
-|                  Modul Materi Pembelajaran                   |         Pemilihan Pahlawan (_Hero Roster_)         |
-| :----------------------------------------------------------: | :------------------------------------------------: |
-| ![Materi Pembelajaran](assets/screenshots/materi_screen.png) | ![Hero Roster](assets/screenshots/hero_roster.png) |
+|           Halaman Pembuka (_Landing Page_)           |             Menu Utama (Bagian Kiri)             |
+| :--------------------------------------------------: | :----------------------------------------------: |
+| ![Landing Page](assets/screenshots/landing_page.png) | ![Main Menu 1](assets/screenshots/main_menu.png) |
 
-|       Arena Permainan (_Gameplay 2D_)        |            Interaksi Kuis Pemrograman             |
-| :------------------------------------------: | :-----------------------------------------------: |
-| ![Gameplay](assets/screenshots/gameplay.png) | ![Pop-up Kuis](assets/screenshots/quiz_popup.png) |
+|             Menu Utama (Bagian Kanan)             |          Dasbor Profil Siswa & Lencana          |
+| :-----------------------------------------------: | :---------------------------------------------: |
+| ![Main Menu 2](assets/screenshots/main_menu2.png) | ![Profil Siswa](assets/screenshots/profile.png) |
 
-_(Catatan: Tangkapan layar di atas diambil langsung dari purwarupa aplikasi Code Hunter)._
+### 2. Pemilihan Level, Arena Permainan (Gameplay 2D), & Evaluasi Kuis
+
+|               Peta Pemilihan Arena Level               |        Arena Permainan (_Gameplay 2D_)         |
+| :----------------------------------------------------: | :--------------------------------------------: |
+| ![Pilihan Level](assets/screenshots/pilihan_level.png) | ![Gameplay](assets/screenshots/main_arena.png) |
+
+|            Interaksi Kuis Pemrograman #1             |            Interaksi Kuis Pemrograman #2             |
+| :--------------------------------------------------: | :--------------------------------------------------: |
+| ![Pop-up Kuis 1](assets/screenshots/main_arena1.png) | ![Pop-up Kuis 2](assets/screenshots/main_arena2.png) |
+
+|               Dialog _Game Over_               |         Dialog Konfirmasi Keluar         |
+| :--------------------------------------------: | :--------------------------------------: |
+| ![Game Over](assets/screenshots/game_over.png) | ![Logout](assets/screenshots/logout.png) |
+
+### 3. Pemilihan Karakter (_Hero Roster_) & Tantangan Harian
+
+|               Karakter Aktif (Stevie)                |               Karakter Terkunci (Ada)                |
+| :--------------------------------------------------: | :--------------------------------------------------: |
+| ![Hero Roster 1](assets/screenshots/character_1.png) | ![Hero Roster 3](assets/screenshots/character_3.png) |
+
+|                 Tantangan Harian & Klaim Koin                  |                   Daftar Misi Harian Lanjutan                   |
+| :------------------------------------------------------------: | :-------------------------------------------------------------: |
+| ![Tantangan Harian 1](assets/screenshots/tantangan_harian.png) | ![Tantangan Harian 2](assets/screenshots/tantangan_harian2.png) |
+
+### 4. Modul Materi Pembelajaran Interaktif (_Clean Edutech_)
+
+|                   Daftar Modul Pembelajaran                   |             Konsep Fundamental & Klasifikasi             |
+| :-----------------------------------------------------------: | :------------------------------------------------------: |
+| ![Daftar Materi](assets/screenshots/Materi_Pembelajaran7.png) | ![Materi 1](assets/screenshots/Materi_Pembelajaran1.png) |
+
+|              Analogi Kehidupan Sehari-hari               |            Studi Kasus Kode & Output Terminal            |
+| :------------------------------------------------------: | :------------------------------------------------------: |
+| ![Materi 2](assets/screenshots/Materi_Pembelajaran2.png) | ![Materi 3](assets/screenshots/Materi_Pembelajaran3.png) |
+
+|                   Bedah Potongan Kode                    |            Pertanyaan & Kunci Analisis Kritis            |
+| :------------------------------------------------------: | :------------------------------------------------------: |
+| ![Materi 4](assets/screenshots/Materi_Pembelajaran4.png) | ![Materi 6](assets/screenshots/Materi_Pembelajaran6.png) |
+
+### 5. Pengaturan Sistem
+
+|              Pengaturan Audio Global               |               Pengaturan Tampilan Layar               |
+| :------------------------------------------------: | :---------------------------------------------------: |
+| ![Setting Audio](assets/screenshots/setting_1.png) | ![Setting Tampilan](assets/screenshots/setting_2.png) |
+
+|                Manajemen Data Progres                |              Informasi Tentang Aplikasi              |
+| :--------------------------------------------------: | :--------------------------------------------------: |
+| ![Setting Progres](assets/screenshots/setting_3.png) | ![Setting Tentang](assets/screenshots/setting_4.png) |
+
+_(Catatan: Seluruh tangkapan layar di atas diambil langsung dari purwarupa aplikasi Code Hunter)._
 
 ---
 
-## 🛠️ Teknologi yang Digunakan (Tech Stack)
+## Teknologi yang Digunakan (Tech Stack)
 
 - **Framework:** Flutter SDK (v3.47.1)
 - **Bahasa Pemrograman:** Dart (v3.13.1)
@@ -56,13 +102,14 @@ _(Catatan: Tangkapan layar di atas diambil langsung dari purwarupa aplikasi Code
 
 ---
 
-## 📂 Struktur Direktori Proyek
+## Struktur Direktori Proyek
 
 ```text
 code_hunter/
 ├── assets/
 │   ├── audio/                # Berkas musik latar (BGM) dan efek suara (SFX .mp3)
 │   ├── images/               # Aset latar belakang, karakter (char_1 - char_8), musuh, & item
+│   ├── screenshots/          # Dokumentasi tangkapan layar antarmuka aplikasi
 │   └── tiled/maps/           # Berkas peta level permainan berbasis Tiled (.tmx)
 ├── lib/
 │   ├── game/
@@ -88,7 +135,7 @@ code_hunter/
 
 ---
 
-## 🚀 Langkah-Langkah Menjalankan Proyek
+## Langkah-Langkah Menjalankan Proyek
 
 Ikuti panduan berikut untuk menjalankan proyek **Code Hunter** di lingkungan lokal Anda:
 
