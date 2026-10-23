@@ -1,8 +1,9 @@
 import 'dart:ui';
+import 'dart:async'; // TAMBAHAN: Untuk menggunakan Timer
 
 import 'package:flutter/material.dart';
 
-import '../utils/global_state.dart'; // IMPORT GLOBAL STATE
+import '../utils/global_state.dart';
 
 class DailyChallengeScreen extends StatefulWidget {
   const DailyChallengeScreen({super.key});
@@ -12,14 +13,62 @@ class DailyChallengeScreen extends StatefulWidget {
 }
 
 class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
+  // Variabel untuk menyimpan sisa waktu dan timer
+  Timer? _countdownTimer;
+  Duration _timeLeft = Duration.zero;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateTimeLeft(); // Hitung waktu pertama kali
+    // Jalankan timer yang memperbarui UI setiap 1 detik
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _calculateTimeLeft();
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel(); // Wajib batalkan timer saat keluar halaman agar tidak memory leak
+    super.dispose();
+  }
+
+  // FUNGSI LOGIKA HITUNG MUNDUR (ZONA WAKTU ASIA/JAKARTA)
+  void _calculateTimeLeft() {
+    // 1. Ambil waktu UTC saat ini dari perangkat
+    DateTime nowUtc = DateTime.now().toUtc();
+    // 2. Konversi paksa ke waktu Asia/Jakarta (UTC+7)
+    DateTime nowJakarta = nowUtc.add(const Duration(hours: 7));
+
+    // 3. Buat waktu target: Tengah malam (00:00:00) keesokan harinya di Jakarta
+    DateTime nextMidnight = DateTime.utc(
+      nowJakarta.year,
+      nowJakarta.month,
+      nowJakarta.day + 1,
+    );
+    // Waktu saat ini di-set sebagai UTC agar perhitungan difference-nya akurat
+    DateTime currentJakarta = DateTime.utc(
+      nowJakarta.year,
+      nowJakarta.month,
+      nowJakarta.day,
+      nowJakarta.hour,
+      nowJakarta.minute,
+      nowJakarta.second,
+    );
+
+    if (mounted) {
+      setState(() {
+        _timeLeft = nextMidnight.difference(currentJakarta);
+      });
+    }
+  }
+
   void _claimReward(int index) {
     final challenge = GlobalState.instance.challenges[index];
 
     if (challenge['status'] == 1) {
       setState(() {
-        // 1. Tambahkan koin ke GlobalState
         GlobalState.instance.addCoins(challenge['reward']);
-        // 2. Ubah status menjadi 'Sudah Diklaim' (2)
         challenge['status'] = 2;
       });
 
@@ -128,7 +177,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '${GlobalState.instance.playerCoins}', // Mengambil koin dari global
+                              '${GlobalState.instance.playerCoins}',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -164,7 +213,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                                 padding: const EdgeInsets.only(bottom: 20.0),
                                 child: _buildChallengeCard(
                                   index,
-                                  GlobalState.instance.challenges[index], // Memanggil list dari global
+                                  GlobalState.instance.challenges[index],
                                 ),
                               );
                             },
@@ -184,6 +233,16 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   }
 
   Widget _buildCountdownBanner() {
+    // Mengekstrak Jam, Menit, dan Detik dari durasi tersisa
+    int hours = _timeLeft.inHours;
+    int minutes = _timeLeft.inMinutes.remainder(60);
+    int seconds = _timeLeft.inSeconds.remainder(60);
+
+    // Memformat string agar selalu dua digit (contoh: 09 Detik)
+    String hoursStr = hours.toString().padLeft(2, '0');
+    String minutesStr = minutes.toString().padLeft(2, '0');
+    String secondsStr = seconds.toString().padLeft(2, '0');
+
     return Container(
       width: double.infinity,
       height: 120,
@@ -236,12 +295,12 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                     ),
                   ),
                   const SizedBox(width: 24),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Misi Baru Akan Tersedia Dalam',
                           style: TextStyle(
                             color: Colors.white70,
@@ -250,10 +309,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                             letterSpacing: 1,
                           ),
                         ),
-                        SizedBox(height: 6),
+                        const SizedBox(height: 6),
+                        // TEKS WAKTU YANG BERGERAK
                         Text(
-                          '14 Jam 24 Menit',
-                          style: TextStyle(
+                          '$hoursStr Jam $minutesStr Menit $secondsStr Detik',
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 26,
                             fontWeight: FontWeight.w900,
@@ -423,9 +483,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   Widget _buildActionButton(int status, int index) {
     if (status == 0) {
       return ElevatedButton(
-        onPressed: () {
-          // Fungsi opsional untuk menavigasi ke halaman misi tersebut
-        },
+        onPressed: () {},
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFEFF6FF),
           foregroundColor: const Color(0xFF2563EB),
