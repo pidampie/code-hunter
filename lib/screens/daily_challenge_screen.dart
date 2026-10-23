@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../utils/global_state.dart'; // IMPORT GLOBAL STATE
+
 class DailyChallengeScreen extends StatefulWidget {
   const DailyChallengeScreen({super.key});
 
@@ -10,57 +12,15 @@ class DailyChallengeScreen extends StatefulWidget {
 }
 
 class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
-  int _userCoins = 250;
-
-  final List<Map<String, dynamic>> _challenges = [
-    {
-      'title': 'Kutu Buku Harian',
-      'desc':
-          'Baca dan selesaikan 1 modul materi pembelajaran apapun hari ini.',
-      'reward': 50,
-      'current_progress': 1,
-      'max_progress': 1,
-      'status': 1, // Siap diklaim
-      'color': const Color(0xFFF59E0B),
-      'icon': Icons.menu_book_rounded,
-    },
-    {
-      'title': 'Pemburu Bug Level 3',
-      'desc': 'Selesaikan arena petualangan Level 3 tanpa nyawa habis.',
-      'reward': 100,
-      'current_progress': 0,
-      'max_progress': 1,
-      'status': 0, // Belum selesai
-      'color': const Color(0xFF3B82F6),
-      'icon': Icons.pest_control_rounded,
-    },
-    {
-      'title': 'Ahli Logika Dasar',
-      'desc': 'Jawab 5 pertanyaan kuis berturut-turut dengan benar.',
-      'reward': 150,
-      'current_progress': 3,
-      'max_progress': 5,
-      'status': 0, // In progress
-      'color': const Color(0xFF8B5CF6),
-      'icon': Icons.lightbulb_rounded,
-    },
-    {
-      'title': 'Absensi Petualang',
-      'desc': 'Login ke dalam game Code Hunter.',
-      'reward': 20,
-      'current_progress': 1,
-      'max_progress': 1,
-      'status': 2, // Sudah diklaim
-      'color': const Color(0xFF10B981),
-      'icon': Icons.login_rounded,
-    },
-  ];
-
   void _claimReward(int index) {
-    if (_challenges[index]['status'] == 1) {
+    final challenge = GlobalState.instance.challenges[index];
+
+    if (challenge['status'] == 1) {
       setState(() {
-        _userCoins += _challenges[index]['reward'] as int;
-        _challenges[index]['status'] = 2;
+        // 1. Tambahkan koin ke GlobalState
+        GlobalState.instance.addCoins(challenge['reward']);
+        // 2. Ubah status menjadi 'Sudah Diklaim' (2)
+        challenge['status'] = 2;
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -70,7 +30,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
               const Icon(Icons.stars_rounded, color: Color(0xFFFFD700)),
               const SizedBox(width: 12),
               Text(
-                'Berhasil mengklaim +${_challenges[index]['reward']} Koin!',
+                'Berhasil mengklaim +${challenge['reward']} Koin!',
                 style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
@@ -144,6 +104,8 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                         ),
                       ),
                       const Spacer(),
+
+                      // INDIKATOR SALDO KOIN TERHUBUNG GLOBAL STATE
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -166,7 +128,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '$_userCoins',
+                              '${GlobalState.instance.playerCoins}', // Mengambil koin dari global
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -180,13 +142,11 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                   ),
                 ),
 
-                // --- KONTEN TENGAH (DIBATASI LEBARNYA AGAR RAPI) ---
+                // --- KONTEN TENGAH ---
                 Expanded(
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxWidth: 850,
-                      ), // Batas maksimal lebar konten
+                      constraints: const BoxConstraints(maxWidth: 850),
                       child: ListView(
                         physics: const BouncingScrollPhysics(),
                         padding: const EdgeInsets.symmetric(
@@ -197,15 +157,18 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                           _buildCountdownBanner(),
                           const SizedBox(height: 32),
 
-                          ...List.generate(_challenges.length, (index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 20.0),
-                              child: _buildChallengeCard(
-                                index,
-                                _challenges[index],
-                              ),
-                            );
-                          }),
+                          ...List.generate(
+                            GlobalState.instance.challenges.length,
+                            (index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 20.0),
+                                child: _buildChallengeCard(
+                                  index,
+                                  GlobalState.instance.challenges[index], // Memanggil list dari global
+                                ),
+                              );
+                            },
+                          ),
                           const SizedBox(height: 32),
                         ],
                       ),
@@ -220,7 +183,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     );
   }
 
-  // --- BANNER HITUNG MUNDUR (LEBIH MEWAH) ---
   Widget _buildCountdownBanner() {
     return Container(
       width: double.infinity,
@@ -229,7 +191,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)], // Indigo ke Ungu
+          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
         ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
@@ -244,7 +206,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
         borderRadius: BorderRadius.circular(24),
         child: Stack(
           children: [
-            // Ornamen Icon Transparan di Belakang
             Positioned(
               right: -30,
               top: -30,
@@ -257,8 +218,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                 ),
               ),
             ),
-
-            // Konten Teks
             Padding(
               padding: const EdgeInsets.all(24.0),
               child: Row(
@@ -313,7 +272,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     );
   }
 
-  // --- KARTU TANTANGAN (TERSTRUKTUR & RAPI) ---
   Widget _buildChallengeCard(int index, Map<String, dynamic> challenge) {
     final int status = challenge['status'];
     final Color itemColor = challenge['color'];
@@ -335,7 +293,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
       ),
       child: Column(
         children: [
-          // BAGIAN ATAS: Info Misi
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -405,15 +362,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-          const Divider(
-            color: Color(0xFFF1F5F9),
-            thickness: 2,
-          ), // Garis pemisah yang bikin rapi
+          const Divider(color: Color(0xFFF1F5F9), thickness: 2),
           const SizedBox(height: 16),
-
-          // BAGIAN BAWAH: Progress & Tombol
           Row(
             children: [
               Expanded(
@@ -454,15 +405,13 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                         valueColor: AlwaysStoppedAnimation<Color>(
                           status == 2 ? const Color(0xFF10B981) : itemColor,
                         ),
-                        minHeight: 10, // Ditebalkan sedikit
+                        minHeight: 10,
                       ),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: 32),
-
-              // Tombol
               _buildActionButton(status, index),
             ],
           ),
@@ -474,10 +423,12 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   Widget _buildActionButton(int status, int index) {
     if (status == 0) {
       return ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          // Fungsi opsional untuk menavigasi ke halaman misi tersebut
+        },
         style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFEFF6FF), // Biru sangat muda
-          foregroundColor: const Color(0xFF2563EB), // Biru gelap
+          backgroundColor: const Color(0xFFEFF6FF),
+          foregroundColor: const Color(0xFF2563EB),
           elevation: 0,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
