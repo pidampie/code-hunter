@@ -14,7 +14,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
   int _selectedSkillIndex = 0; // 0: Pasif, 1: Skill 1, 2: Skill 2, 3: Ultimate
   String _selectedRole = 'SEMUA';
 
-  // MENGHUBUNGKAN 8 GAMBAR KARAKTER ASLI DARI FOLDER ASET
+  // MENGHUBUNGKAN 8 GAMBAR KARAKTER ASLI DARI FOLDER ASET BESERTA HARGANYA
   final List<Map<String, dynamic>> _heroes = [
     {
       'name': 'STEVIE',
@@ -26,6 +26,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.70,
       'skill_effects': 0.50,
       'difficulty': 0.30,
+      'price': 0, // Gratis bawaan
       'is_locked': false,
       'is_equipped': true,
       'color': const Color(0xFF10B981),
@@ -41,6 +42,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.95,
       'skill_effects': 0.60,
       'difficulty': 0.85,
+      'price': 500, // Harga karakter
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFFEF4444),
@@ -56,6 +58,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.85,
       'skill_effects': 0.90,
       'difficulty': 0.60,
+      'price': 600,
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFF8B5CF6),
@@ -71,6 +74,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.85,
       'skill_effects': 0.60,
       'difficulty': 0.70,
+      'price': 700,
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFF3B82F6),
@@ -86,6 +90,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.85,
       'skill_effects': 0.40,
       'difficulty': 0.50,
+      'price': 800,
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFFE11D48),
@@ -101,6 +106,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.30,
       'skill_effects': 0.95,
       'difficulty': 0.40,
+      'price': 900,
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFF06B6D4),
@@ -116,6 +122,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.40,
       'skill_effects': 0.85,
       'difficulty': 0.75,
+      'price': 1000,
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFFD97706),
@@ -131,6 +138,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.40,
       'skill_effects': 0.40,
       'difficulty': 0.20,
+      'price': 1200,
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFF475569),
@@ -148,6 +156,60 @@ class _CharacterScreenState extends State<CharacterScreen> {
     'SUPPORT',
   ];
 
+  // ===========================================================================
+  // LOGIKA TRANSAKSI & PENGGUNAAN KARAKTER
+  // ===========================================================================
+  void _buyHero(Map<String, dynamic> hero) {
+    int price = hero['price'];
+
+    // Validasi dan potong koin dari GlobalState
+    if (GlobalState.instance.spendCoins(price)) {
+      setState(() {
+        hero['is_locked'] = false; // Buka gembok karakter
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Berhasil membuka ${hero['name']}!"),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Koin emas tidak cukup! Butuh $price koin."),
+          backgroundColor: Colors.redAccent,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _equipHero(Map<String, dynamic> selectedHero) {
+    setState(() {
+      // Lepas status equip dari semua karakter terlebih dahulu
+      for (var h in _heroes) {
+        h['is_equipped'] = false;
+      }
+      // Pasang karakter yang baru dipilih
+      selectedHero['is_equipped'] = true;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          "${selectedHero['name']} kini digunakan sebagai pahlawan utama!",
+        ),
+        backgroundColor: const Color(0xFF3B82F6),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  // ===========================================================================
+  // ANTARMUKA PENGGUNA (UI)
+  // ===========================================================================
   @override
   Widget build(BuildContext context) {
     final hero = _heroes[_selectedHeroIndex];
@@ -206,6 +268,41 @@ class _CharacterScreenState extends State<CharacterScreen> {
                         ),
                       ),
                       const Spacer(),
+
+                      // PANEL INDIKATOR SALDO KOIN
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: Colors.yellow.withOpacity(0.5),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.monetization_on,
+                              color: Colors.yellow,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${GlobalState.instance.playerCoins}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 12),
 
                       // Kategori Role Filter
                       Container(
@@ -324,7 +421,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
           ),
         ],
       ),
-      // MEMPERBAIKI OVERFLOW DENGAN SCROLLVIEW
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
@@ -415,7 +511,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
               hero['difficulty'],
               const Color(0xFFF59E0B),
             ),
-            const SizedBox(height: 16), // Pengganti Spacer yang bikin error
+            const SizedBox(height: 16),
             Text(
               hero['desc'],
               style: const TextStyle(
@@ -475,6 +571,8 @@ class _CharacterScreenState extends State<CharacterScreen> {
 
   // --- PANEL TENGAH (FOTO KARAKTER & TOMBOL) ---
   Widget _buildCenterPanel(Map<String, dynamic> hero) {
+    final bool canAfford = GlobalState.instance.playerCoins >= hero['price'];
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -483,7 +581,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // MENAMPILKAN GAMBAR ASLI KARAKTER
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
@@ -497,7 +594,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
                     ],
                   ),
                   child: ColorFiltered(
-                    // Jika terkunci, beri efek siluet bayangan hitam legam
                     colorFilter: hero['is_locked']
                         ? const ColorFilter.mode(
                             Colors.black87,
@@ -524,30 +620,45 @@ class _CharacterScreenState extends State<CharacterScreen> {
           ),
         ),
 
-        // Tombol Equip
+        // TOMBOL AKSI DINAMIS (BELI / GUNAKAN / EQUIPPED)
         SizedBox(
-          width: 220,
+          width: 240, // Lebar disesuaikan agar teks muat
           height: 48,
-          child: ElevatedButton(
-            onPressed: hero['is_locked'] ? null : () {},
+          child: ElevatedButton.icon(
+            onPressed: () {
+              if (hero['is_locked']) {
+                _buyHero(hero); // Eksekusi pembelian jika terkunci
+              } else if (!hero['is_equipped']) {
+                _equipHero(hero); // Gunakan karakter jika sudah dibeli
+              }
+            },
             style: ElevatedButton.styleFrom(
-              backgroundColor: hero['is_equipped']
-                  ? const Color(0xFF10B981)
-                  : Colors.white,
-              foregroundColor: hero['is_equipped']
+              backgroundColor: hero['is_locked']
+                  ? (canAfford
+                        ? const Color(0xFFF59E0B)
+                        : const Color(0xFF94A3B8))
+                  : (hero['is_equipped']
+                        ? const Color(0xFF10B981)
+                        : Colors.white),
+              foregroundColor: hero['is_locked']
                   ? Colors.white
-                  : const Color(0xFF1E293B),
+                  : (hero['is_equipped']
+                        ? Colors.white
+                        : const Color(0xFF1E293B)),
               elevation: 4,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
               ),
             ),
-            child: Text(
+            icon: hero['is_locked']
+                ? const Icon(Icons.monetization_on, size: 18)
+                : (hero['is_equipped']
+                      ? const Icon(Icons.check, size: 18)
+                      : const Icon(Icons.play_arrow_rounded, size: 18)),
+            label: Text(
               hero['is_locked']
-                  ? '🔒 HERO TERKUNCI'
-                  : (hero['is_equipped']
-                        ? '✓ SEDANG DIGUNAKAN'
-                        : 'GUNAKAN HERO'),
+                  ? 'BELI - ${hero['price']} KOIN'
+                  : (hero['is_equipped'] ? 'SEDANG DIGUNAKAN' : 'GUNAKAN HERO'),
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w900,
@@ -590,7 +701,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
             ),
           ),
           const SizedBox(height: 16),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -605,9 +715,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
               _buildSkillTab(3, Icons.bolt_rounded, 'S3', hero['color']),
             ],
           ),
-
           const SizedBox(height: 32),
-
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
@@ -732,7 +840,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // GAMBAR MINIATURE DI LIST BAWAH
                   ColorFiltered(
                     colorFilter: hero['is_locked']
                         ? const ColorFilter.mode(
@@ -792,5 +899,25 @@ class _CharacterScreenState extends State<CharacterScreen> {
         ),
       ),
     );
+  }
+}
+
+// ============================================================================
+// KELAS GLOBAL STATE SEMENTARA (Agar kode dapat langsung berjalan)
+// Nantinya Anda bisa memindahkan kelas ini ke `lib/utils/global_state.dart`
+// ============================================================================
+class GlobalState {
+  static final GlobalState instance = GlobalState._internal();
+  GlobalState._internal();
+
+  // Ditetapkan saldo 1500 koin agar Anda bisa menguji coba pembelian karakter
+  int playerCoins = 1500;
+
+  bool spendCoins(int amount) {
+    if (playerCoins >= amount) {
+      playerCoins -= amount;
+      return true;
+    }
+    return false;
   }
 }
