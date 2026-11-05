@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../utils/global_state.dart';
+
 class CharacterScreen extends StatefulWidget {
   const CharacterScreen({super.key});
 
@@ -11,10 +13,9 @@ class CharacterScreen extends StatefulWidget {
 
 class _CharacterScreenState extends State<CharacterScreen> {
   int _selectedHeroIndex = 0;
-  int _selectedSkillIndex = 0; // 0: Pasif, 1: Skill 1, 2: Skill 2, 3: Ultimate
+  int _selectedSkillIndex = 0;
   String _selectedRole = 'SEMUA';
 
-  // MENGHUBUNGKAN 8 GAMBAR KARAKTER ASLI DARI FOLDER ASET BESERTA HARGANYA
   final List<Map<String, dynamic>> _heroes = [
     {
       'name': 'STEVIE',
@@ -26,7 +27,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.70,
       'skill_effects': 0.50,
       'difficulty': 0.30,
-      'price': 0, // Gratis bawaan
+      'price': 0,
       'is_locked': false,
       'is_equipped': true,
       'color': const Color(0xFF10B981),
@@ -42,7 +43,7 @@ class _CharacterScreenState extends State<CharacterScreen> {
       'offense': 0.95,
       'skill_effects': 0.60,
       'difficulty': 0.85,
-      'price': 500, // Harga karakter
+      'price': 500,
       'is_locked': true,
       'is_equipped': false,
       'color': const Color(0xFFEF4444),
@@ -156,17 +157,26 @@ class _CharacterScreenState extends State<CharacterScreen> {
     'SUPPORT',
   ];
 
-  // ===========================================================================
-  // LOGIKA TRANSAKSI & PENGGUNAAN KARAKTER
-  // ===========================================================================
+  @override
+  void initState() {
+    super.initState();
+    for (var hero in _heroes) {
+      if (GlobalState.instance.isHeroUnlocked(hero['name'])) {
+        hero['is_locked'] = false;
+      }
+    }
+  }
+
+  // FUNGSI BUY HERO YANG TELAH DIPERBAIKI (ERROR FIX)
   void _buyHero(Map<String, dynamic> hero) {
     int price = hero['price'];
 
-    // Validasi dan potong koin dari GlobalState
     if (GlobalState.instance.spendCoins(price)) {
       setState(() {
-        hero['is_locked'] = false; // Buka gembok karakter
+        hero['is_locked'] = false;
       });
+
+      GlobalState.instance.unlockHero(hero['name']);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -188,11 +198,9 @@ class _CharacterScreenState extends State<CharacterScreen> {
 
   void _equipHero(Map<String, dynamic> selectedHero) {
     setState(() {
-      // Lepas status equip dari semua karakter terlebih dahulu
       for (var h in _heroes) {
         h['is_equipped'] = false;
       }
-      // Pasang karakter yang baru dipilih
       selectedHero['is_equipped'] = true;
     });
 
@@ -207,9 +215,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  // ===========================================================================
-  // ANTARMUKA PENGGUNA (UI)
-  // ===========================================================================
   @override
   Widget build(BuildContext context) {
     final hero = _heroes[_selectedHeroIndex];
@@ -224,20 +229,17 @@ class _CharacterScreenState extends State<CharacterScreen> {
             errorBuilder: (context, error, stackTrace) =>
                 Container(color: const Color(0xFF0F172A)),
           ),
-
           ClipRect(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 18.0, sigmaY: 18.0),
               child: Container(color: const Color(0xFF0F172A).withOpacity(0.6)),
             ),
           ),
-
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
               child: Column(
                 children: [
-                  // HEADER
                   Row(
                     children: [
                       InkWell(
@@ -268,8 +270,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
                         ),
                       ),
                       const Spacer(),
-
-                      // PANEL INDIKATOR SALDO KOIN
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 14,
@@ -303,8 +303,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
                         ),
                       ),
                       const SizedBox(width: 12),
-
-                      // Kategori Role Filter
                       Container(
                         height: 40,
                         padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -355,29 +353,18 @@ class _CharacterScreenState extends State<CharacterScreen> {
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 24),
-
-                  // MAIN LAYOUT
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // KIRI: STATS
                         Expanded(flex: 3, child: _buildStatsPanel(hero)),
-
-                        // TENGAH: GAMBAR KARAKTER
                         Expanded(flex: 4, child: _buildCenterPanel(hero)),
-
-                        // KANAN: SKILLS
                         Expanded(flex: 3, child: _buildSkillsPanel(hero)),
                       ],
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
-                  // ROSTER LIST BAWAH
                   SizedBox(
                     height: 85,
                     child: ListView.separated(
@@ -389,10 +376,10 @@ class _CharacterScreenState extends State<CharacterScreen> {
                       itemBuilder: (context, index) {
                         final h = _heroes[index];
                         final isSelected = _selectedHeroIndex == index;
-                        // Filter by Role
                         if (_selectedRole != 'SEMUA' &&
-                            h['role'] != _selectedRole)
+                            h['role'] != _selectedRole) {
                           return const SizedBox.shrink();
+                        }
                         return _buildHeroAvatar(h, isSelected, index);
                       },
                     ),
@@ -406,7 +393,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  // --- PANEL KIRI (STATISTIK) ---
   Widget _buildStatsPanel(Map<String, dynamic> hero) {
     return Container(
       padding: const EdgeInsets.all(24),
@@ -569,7 +555,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  // --- PANEL TENGAH (FOTO KARAKTER & TOMBOL) ---
   Widget _buildCenterPanel(Map<String, dynamic> hero) {
     final bool canAfford = GlobalState.instance.playerCoins >= hero['price'];
 
@@ -619,17 +604,15 @@ class _CharacterScreenState extends State<CharacterScreen> {
             ),
           ),
         ),
-
-        // TOMBOL AKSI DINAMIS (BELI / GUNAKAN / EQUIPPED)
         SizedBox(
-          width: 240, // Lebar disesuaikan agar teks muat
+          width: 240,
           height: 48,
           child: ElevatedButton.icon(
             onPressed: () {
               if (hero['is_locked']) {
-                _buyHero(hero); // Eksekusi pembelian jika terkunci
+                _buyHero(hero);
               } else if (!hero['is_equipped']) {
-                _equipHero(hero); // Gunakan karakter jika sudah dibeli
+                _equipHero(hero);
               }
             },
             style: ElevatedButton.styleFrom(
@@ -671,7 +654,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  // --- PANEL KANAN (SKILLS) ---
   Widget _buildSkillsPanel(Map<String, dynamic> hero) {
     final bool isLocked = hero['is_locked'];
 
@@ -808,7 +790,6 @@ class _CharacterScreenState extends State<CharacterScreen> {
     );
   }
 
-  // --- ROSTER LIST BAWAH ---
   Widget _buildHeroAvatar(
     Map<String, dynamic> hero,
     bool isSelected,
@@ -899,25 +880,5 @@ class _CharacterScreenState extends State<CharacterScreen> {
         ),
       ),
     );
-  }
-}
-
-// ============================================================================
-// KELAS GLOBAL STATE SEMENTARA (Agar kode dapat langsung berjalan)
-// Nantinya Anda bisa memindahkan kelas ini ke `lib/utils/global_state.dart`
-// ============================================================================
-class GlobalState {
-  static final GlobalState instance = GlobalState._internal();
-  GlobalState._internal();
-
-  // Ditetapkan saldo 1500 koin agar Anda bisa menguji coba pembelian karakter
-  int playerCoins = 1500;
-
-  bool spendCoins(int amount) {
-    if (playerCoins >= amount) {
-      playerCoins -= amount;
-      return true;
-    }
-    return false;
   }
 }
