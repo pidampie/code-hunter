@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -10,6 +9,7 @@ import 'materi_screen.dart';
 import 'setting_screen.dart';
 import 'daily_challenge_screen.dart';
 import 'profile_screen.dart';
+import '../utils/global_state.dart';
 
 class MainMenuScreen extends StatefulWidget {
   const MainMenuScreen({super.key});
@@ -23,9 +23,8 @@ class _MainMenuScreenState extends State<MainMenuScreen>
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
 
-  int _userCoins = 350;
-
-  final List<Map<String, dynamic>> _menuList = [
+  // PERBAIKAN: Deklarasi tipe data Map telah dilengkapkan
+  final List> _menuList = [
     {
       'title': 'Mulai Petualangan',
       'subtitle': 'Jelajahi peta level & kalahkan coding bug',
@@ -95,31 +94,31 @@ class _MainMenuScreenState extends State<MainMenuScreen>
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const LevelScreen()),
-        );
+        ).then((_) => setState(() {}));
         break;
       case 1:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const CharacterScreen()),
-        );
+        ).then((_) => setState(() {}));
         break;
       case 2:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const MateriScreen()),
-        );
+        ).then((_) => setState(() {}));
         break;
       case 3:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const DailyChallengeScreen()),
-        );
+        ).then((_) => setState(() {}));
         break;
       case 4:
         Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const SettingScreen()),
-        );
+        ).then((_) => setState(() {}));
         break;
       case 5:
         _showExitConfirmationDialog();
@@ -222,7 +221,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 32.0,
-                                  vertical: 12.0,
+                                  vertical: 8.0,
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -257,7 +256,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                               width: 32,
                                               height: 32,
                                               decoration: BoxDecoration(
-                                                color: Colors.transparent, // Background dihapus
+                                                color: Colors.transparent, 
                                                 borderRadius:
                                                     BorderRadius.circular(10),
                                                 image: const DecorationImage(
@@ -327,7 +326,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                               ),
                                               const SizedBox(width: 8),
                                               Text(
-                                                '$_userCoins',
+                                                '${GlobalState.instance.playerCoins}',
                                                 style: const TextStyle(
                                                   color: Colors.white,
                                                   fontSize: 13,
@@ -345,7 +344,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                               builder: (_) =>
                                                   const SettingScreen(),
                                             ),
-                                          ),
+                                          ).then((_) => setState(() {})),
                                           borderRadius: BorderRadius.circular(
                                             16,
                                           ),
@@ -431,7 +430,7 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                               ),
                               const Spacer(),
 
-                              // KARTU MENU (Diperbesar kembali tingginya menjadi 310)
+                              // KARTU MENU
                               SizedBox(
                                 height: 310,
                                 child: ListView.separated(
@@ -485,8 +484,8 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                                 ),
                                                 borderRadius:
                                                     const BorderRadius.vertical(
-                                                      top: Radius.circular(24),
-                                                    ),
+                                                  top: Radius.circular(24),
+                                                ),
                                               ),
                                               child: Stack(
                                                 children: [
@@ -506,16 +505,16 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                                     child: Container(
                                                       padding:
                                                           const EdgeInsets.symmetric(
-                                                            horizontal: 12,
-                                                            vertical: 6,
-                                                          ),
+                                                        horizontal: 12,
+                                                        vertical: 6,
+                                                      ),
                                                       decoration: BoxDecoration(
                                                         color: Colors.white
                                                             .withOpacity(0.2),
                                                         borderRadius:
                                                             BorderRadius.circular(
-                                                              20,
-                                                            ),
+                                                          20,
+                                                        ),
                                                       ),
                                                       child: Text(
                                                         item['tag'],
@@ -584,25 +583,25 @@ class _MainMenuScreenState extends State<MainMenuScreen>
                                                       child: ElevatedButton(
                                                         onPressed: () =>
                                                             _onMenuSelected(
-                                                              index,
-                                                            ),
+                                                          index,
+                                                        ),
                                                         style: ElevatedButton.styleFrom(
                                                           backgroundColor:
                                                               const Color(
-                                                                0xFFF1F5F9,
-                                                              ),
+                                                            0xFFF1F5F9,
+                                                          ),
                                                           foregroundColor:
                                                               itemColor,
                                                           elevation: 0,
                                                           padding:
                                                               const EdgeInsets.symmetric(
-                                                                vertical: 12,
-                                                              ),
+                                                            vertical: 12,
+                                                          ),
                                                           shape: RoundedRectangleBorder(
                                                             borderRadius:
                                                                 BorderRadius.circular(
-                                                                  10,
-                                                                ),
+                                                              10,
+                                                            ),
                                                           ),
                                                         ),
                                                         child: const Text(
