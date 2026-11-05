@@ -1,35 +1,28 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GlobalState {
   static final GlobalState instance = GlobalState._internal();
   GlobalState._internal();
 
-  int playerCoins = 1500;
+  late SharedPreferences prefs;
 
-  // Fungsi untuk mengurangi koin (digunakan saat beli Hero)
-  bool spendCoins(int amount) {
-    if (playerCoins >= amount) {
-      playerCoins -= amount;
-      return true;
-    }
-    return false;
-  }
+  // Nilai default koin sebelum data dimuat
+  int playerCoins = 1500; 
 
-  // Fungsi untuk menambah koin (digunakan saat klaim Misi)
-  void addCoins(int amount) {
-    playerCoins += amount;
-  }
+  // Daftar nama pahlawan yang sudah dibeli (STEVIE gratis)
+  List<String> unlockedHeroes = ['STEVIE'];
 
-  // Daftar Tantangan Harian (Dipindah ke Global agar terhubung ke seluruh sistem)
+  // Daftar Tantangan Harian (Warna dan Ikon tetap statis)
   final List<Map<String, dynamic>> challenges = [
     {
       'title': 'Kutu Buku Harian',
-      'desc':
-          'Baca dan selesaikan 1 modul materi pembelajaran apapun hari ini.',
+      'desc': 'Baca dan selesaikan 1 modul materi pembelajaran apapun hari ini.',
       'reward': 50,
       'current_progress': 1,
       'max_progress': 1,
-      'status': 1, // 0: Belum, 1: Siap diklaim, 2: Selesai
+      'status': 1, 
       'color': const Color(0xFFF59E0B),
       'icon': Icons.menu_book_rounded,
     },
@@ -65,19 +58,70 @@ class GlobalState {
     },
   ];
 
-  // Fungsi untuk memperbarui progres misi dari halaman lain (Materi/Game)
-  void updateChallengeProgress(int index, int addedProgress) {
-    if (challenges[index]['status'] == 2) return; // Jika sudah diklaim, abaikan
-
-    challenges[index]['current_progress'] += addedProgress;
-
-    // Jika progres mencapai target, ubah status menjadi siap diklaim (1)
-    if (challenges[index]['current_progress'] >=
-        challenges[index]['max_progress']) {
-      challenges[index]['current_progress'] = challenges[index]['max_progress'];
-      if (challenges[index]['status'] == 0) {
-        challenges[index]['status'] = 1;
+  // =========================================================
+  // FUNGSI INISIALISASI (DIPANGGIL SAAT APLIKASI PERTAMA BUKA)
+  // =========================================================
+  Future<void> init() async {
+    prefs = await SharedPreferences.getInstance();
+    
+    // 1. Muat Koin (Jika pengguna baru, beri 1500 koin)
+    playerCoins = prefs.getInt('playerCoins') ?? 1500;
+    
+    // 2. Muat Pahlawan yang Terbuka
+    unlockedHeroes = prefs.getStringList('unlockedHeroes') ?? ['STEVIE'];
+    
+    // 3. Muat Progres Tantangan Harian (Hanya memuat angka progres & status)
+    String? challengesData = prefs.getString('challengesData');
+    if (challengesData != null) {
+      List<dynamic> decoded = jsonDecode(challengesData);
+      for (int i = 0; i < decoded.length; i++) {
+        if (i < challenges.length) {
+          challenges[i]['current_progress'] = decoded[i]['current_progress'];
+          challenges[i]['status'] = decoded[i]['status'];
+        }
       }
     }
+  }
+
+  // =========================================================
+  // FUNGSI TRANSAKSI DAN PENYIMPANAN PERMANEN
+  // =========================================================
+  
+  // Mengurangi Koin & Menyimpan
+  bool spendCoins(int amount) {
+    if (playerCoins >= amount) {
+      playerCoins -= amount;
+      prefs.setInt('playerCoins', playerCoins); // SIMPAN PERMANEN
+      return true;
+    }
+    return false;
+  }
+
+  // Menambah Koin & Menyimpan
+  void addCoins(int amount) {
+    playerCoins += amount;
+    prefs.setInt('playerCoins', playerCoins); // SIMPAN PERMANEN
+  }
+
+  // Membuka Kunci Pahlawan & Menyimpan
+  void unlockHero(String heroName) {
+    if (!unlockedHeroes.contains(heroName)) {
+      unlockedHeroes.add(heroName);
+      prefs.setStringList('unlockedHeroes', unlockedHeroes); // SIMPAN PERMANEN
+    }
+  }
+
+  // Mengecek Status Pahlawan
+  bool isHeroUnlocked(String heroName) {
+    return unlockedHeroes.contains(heroName);
+  }
+
+  // Menyimpan Progres Tantangan
+  void saveChallenges() {
+    List<Map<String, dynamic>> dataToSave = challenges.map((c) => {
+      'current_progress': c['current_progress'] as int,
+      'status': c['status'] as int,
+    }).toList();
+    prefs.setString('challengesData', jsonEncode(dataToSave)); // SIMPAN PERMANEN
   }
 }
