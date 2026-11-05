@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'dart:async'; // TAMBAHAN: Untuk menggunakan Timer
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 
@@ -13,15 +13,13 @@ class DailyChallengeScreen extends StatefulWidget {
 }
 
 class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
-  // Variabel untuk menyimpan sisa waktu dan timer
   Timer? _countdownTimer;
   Duration _timeLeft = Duration.zero;
 
   @override
   void initState() {
     super.initState();
-    _calculateTimeLeft(); // Hitung waktu pertama kali
-    // Jalankan timer yang memperbarui UI setiap 1 detik
+    _calculateTimeLeft();
     _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
       _calculateTimeLeft();
     });
@@ -29,24 +27,18 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
 
   @override
   void dispose() {
-    _countdownTimer?.cancel(); // Wajib batalkan timer saat keluar halaman agar tidak memory leak
+    _countdownTimer?.cancel();
     super.dispose();
   }
 
-  // FUNGSI LOGIKA HITUNG MUNDUR (ZONA WAKTU ASIA/JAKARTA)
   void _calculateTimeLeft() {
-    // 1. Ambil waktu UTC saat ini dari perangkat
     DateTime nowUtc = DateTime.now().toUtc();
-    // 2. Konversi paksa ke waktu Asia/Jakarta (UTC+7)
     DateTime nowJakarta = nowUtc.add(const Duration(hours: 7));
-
-    // 3. Buat waktu target: Tengah malam (00:00:00) keesokan harinya di Jakarta
     DateTime nextMidnight = DateTime.utc(
       nowJakarta.year,
       nowJakarta.month,
       nowJakarta.day + 1,
     );
-    // Waktu saat ini di-set sebagai UTC agar perhitungan difference-nya akurat
     DateTime currentJakarta = DateTime.utc(
       nowJakarta.year,
       nowJakarta.month,
@@ -63,6 +55,7 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
     }
   }
 
+  // FUNGSI CLAIM REWARD YANG TELAH DIPERBAIKI (ERROR FIX)
   void _claimReward(int index) {
     final challenge = GlobalState.instance.challenges[index];
 
@@ -70,6 +63,8 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
       setState(() {
         GlobalState.instance.addCoins(challenge['reward']);
         challenge['status'] = 2;
+        GlobalState.instance
+            .saveChallenges(); // Simpan perubahan status ke memori
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,7 +95,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // Background
           Image.asset(
             'assets/images/bg/bg_jungle.png',
             fit: BoxFit.cover,
@@ -113,11 +107,9 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
               child: Container(color: const Color(0xFF0F172A).withOpacity(0.7)),
             ),
           ),
-
           SafeArea(
             child: Column(
               children: [
-                // --- TOP BAR ---
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32.0,
@@ -153,8 +145,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                         ),
                       ),
                       const Spacer(),
-
-                      // INDIKATOR SALDO KOIN TERHUBUNG GLOBAL STATE
                       Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -190,8 +180,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                     ],
                   ),
                 ),
-
-                // --- KONTEN TENGAH ---
                 Expanded(
                   child: Center(
                     child: ConstrainedBox(
@@ -205,7 +193,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                         children: [
                           _buildCountdownBanner(),
                           const SizedBox(height: 32),
-
                           ...List.generate(
                             GlobalState.instance.challenges.length,
                             (index) {
@@ -233,12 +220,10 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
   }
 
   Widget _buildCountdownBanner() {
-    // Mengekstrak Jam, Menit, dan Detik dari durasi tersisa
     int hours = _timeLeft.inHours;
     int minutes = _timeLeft.inMinutes.remainder(60);
     int seconds = _timeLeft.inSeconds.remainder(60);
 
-    // Memformat string agar selalu dua digit (contoh: 09 Detik)
     String hoursStr = hours.toString().padLeft(2, '0');
     String minutesStr = minutes.toString().padLeft(2, '0');
     String secondsStr = seconds.toString().padLeft(2, '0');
@@ -310,7 +295,6 @@ class _DailyChallengeScreenState extends State<DailyChallengeScreen> {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        // TEKS WAKTU YANG BERGERAK
                         Text(
                           '$hoursStr Jam $minutesStr Menit $secondsStr Detik',
                           style: const TextStyle(
