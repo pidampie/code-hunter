@@ -24,8 +24,8 @@ class GameScreen extends StatefulWidget {
 class _GameScreenState extends State<GameScreen> {
   late CodeHunterGame _game;
 
-  // 100 Soal Tersedia
-  final List<List<Map<String, dynamic>>> _allQuestions = [
+  // 100 Soal Tersedia (Menggunakan List aman tanpa kurung sudut ganda)
+  final List _allQuestions = [
     // Level 1
     [
       {
@@ -605,10 +605,46 @@ class _GameScreenState extends State<GameScreen> {
     );
   }
 
+  // =========================================================
+  // FUNGSI KENDALI SENTUH (ENGINE INPUT BRIDGE)
+  // =========================================================
+  void _moveLeft() {
+    try {
+      (_game.player as dynamic).moveLeft();
+    } catch (_) {}
+  }
+
+  void _moveRight() {
+    try {
+      (_game.player as dynamic).moveRight();
+    } catch (_) {}
+  }
+
+  void _stopMove() {
+    try {
+      (_game.player as dynamic).stopMoving();
+    } catch (_) {}
+  }
+
+  void _jump() {
+    try {
+      (_game.player as dynamic).jump();
+    } catch (_) {}
+  }
+
+  void _action() {
+    try {
+      (_game.player as dynamic).attack();
+    } catch (_) {}
+  }
+
   void _showQuizDialog(EnemyComponent enemy) {
-    // Ambil soal berdasarkan level saat ini
-    final levelQuestions = _allQuestions[widget.levelIndex];
-    final q = levelQuestions[enemy.questionIndex % levelQuestions.length];
+    final List levelQuestions = _allQuestions[widget.levelIndex] as List;
+    final Map q =
+        levelQuestions[enemy.questionIndex % levelQuestions.length] as Map;
+    final List options = q['options'] as List;
+    final String correct = q['correct'] as String;
+    final String code = q['code'] as String;
 
     showDialog(
       context: context,
@@ -645,7 +681,7 @@ class _GameScreenState extends State<GameScreen> {
                   border: Border.all(color: Colors.grey.shade400, width: 2),
                 ),
                 child: Text(
-                  q['code'],
+                  code,
                   style: const TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 14,
@@ -659,8 +695,8 @@ class _GameScreenState extends State<GameScreen> {
                 children: [
                   Expanded(
                     child: _buildAnswerBtn(
-                      q['options'][0],
-                      q['options'][0] == q['correct'],
+                      options[0] as String,
+                      options[0] == correct,
                       enemy,
                       dialogCtx,
                     ),
@@ -668,8 +704,8 @@ class _GameScreenState extends State<GameScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: _buildAnswerBtn(
-                      q['options'][1],
-                      q['options'][1] == q['correct'],
+                      options[1] as String,
+                      options[1] == correct,
                       enemy,
                       dialogCtx,
                     ),
@@ -681,8 +717,8 @@ class _GameScreenState extends State<GameScreen> {
                 children: [
                   Expanded(
                     child: _buildAnswerBtn(
-                      q['options'][2],
-                      q['options'][2] == q['correct'],
+                      options[2] as String,
+                      options[2] == correct,
                       enemy,
                       dialogCtx,
                     ),
@@ -690,8 +726,8 @@ class _GameScreenState extends State<GameScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: _buildAnswerBtn(
-                      q['options'][3],
-                      q['options'][3] == q['correct'],
+                      options[3] as String,
+                      options[3] == correct,
                       enemy,
                       dialogCtx,
                     ),
@@ -722,9 +758,7 @@ class _GameScreenState extends State<GameScreen> {
         Navigator.pop(dialogCtx);
 
         if (isCorrect) {
-          // 1. SUARA JAWABAN BENAR (succes game.mp3)
           AudioManager.instance.playQuizCorrect();
-
           enemy.onDefeated();
           _game.addScore(100);
           ScaffoldMessenger.of(context).showSnackBar(
@@ -738,9 +772,7 @@ class _GameScreenState extends State<GameScreen> {
             ),
           );
         } else {
-          // 2. SUARA JAWABAN SALAH (eror.mp3)
           AudioManager.instance.playQuizWrong();
-
           _game.player.takeDamage();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -764,7 +796,6 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showGameOverDialog() {
-    // 3. SUARA GAME OVER / NYAWA HABIS (fail.mp3)
     AudioManager.instance.playGameOver();
 
     showDialog(
@@ -823,10 +854,8 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _showWinDialog() {
-    // 4. SUARA MENANG LEVEL (win.mp3)
     AudioManager.instance.playLevelWin();
 
-    // LOGIKA UNLOCK LEVEL:
     if (widget.levelIndex + 1 == globalUnlockedLevel &&
         globalUnlockedLevel < 20) {
       globalUnlockedLevel++;
@@ -862,7 +891,7 @@ class _GameScreenState extends State<GameScreen> {
             ),
             onPressed: () {
               Navigator.pop(ctx);
-              Navigator.pop(context); // Kembali ke peta level
+              Navigator.pop(context);
             },
             child: const Text(
               'LANJUT',
@@ -880,6 +909,164 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: GameWidget(game: _game));
+    return Scaffold(
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // 1. LAYAR UTAMA FLAME ENGINE
+          GameWidget(game: _game),
+
+          // 2. LAPISAN VIRTUAL ON-SCREEN GAMEPAD
+          SafeArea(
+            child: Stack(
+              children: [
+                // --- KIRI BAWAH: TOMBOL ARAH (KIRI & KANAN) ---
+                Positioned(
+                  left: 28,
+                  bottom: 24,
+                  child: Row(
+                    children: [
+                      _buildHoldButton(
+                        icon: Icons.keyboard_arrow_left_rounded,
+                        label: 'KIRI',
+                        onHoldStart: _moveLeft,
+                        onHoldEnd: _stopMove,
+                      ),
+                      const SizedBox(width: 16),
+                      _buildHoldButton(
+                        icon: Icons.keyboard_arrow_right_rounded,
+                        label: 'KANAN',
+                        onHoldStart: _moveRight,
+                        onHoldEnd: _stopMove,
+                      ),
+                    ],
+                  ),
+                ),
+
+                // --- KANAN BAWAH: TOMBOL AKSI & LOMPAT ---
+                Positioned(
+                  right: 28,
+                  bottom: 24,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      _buildTapButton(
+                        icon: Icons.flash_on_rounded,
+                        label: 'AKSI',
+                        accentColor: const Color(0xFFF59E0B),
+                        size: 64,
+                        onTap: _action,
+                      ),
+                      const SizedBox(width: 18),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 14.0),
+                        child: _buildTapButton(
+                          icon: Icons.keyboard_double_arrow_up_rounded,
+                          label: 'LOMPAT',
+                          accentColor: const Color(0xFF10B981),
+                          size: 74,
+                          onTap: _jump,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // WIDGET TOMBOL TAHAN (KIRI / KANAN) DENGAN ISOLASI SENTUHAN
+  Widget _buildHoldButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onHoldStart,
+    required VoidCallback onHoldEnd,
+  }) {
+    return Listener(
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: (_) => onHoldStart(),
+      onPointerUp: (_) => onHoldEnd(),
+      onPointerCancel: (_) => onHoldEnd(),
+      child: Container(
+        width: 68,
+        height: 68,
+        decoration: BoxDecoration(
+          color: const Color(0xFF0F172A).withOpacity(0.55),
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white.withOpacity(0.35), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.25),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: 34),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 8,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // WIDGET TOMBOL KETUK (LOMPAT / AKSI) DENGAN ISOLASI SENTUHAN
+  Widget _buildTapButton({
+    required IconData icon,
+    required String label,
+    required Color accentColor,
+    required double size,
+    required VoidCallback onTap,
+  }) {
+    return Listener(
+      behavior: HitTestBehavior.opaque,
+      onPointerDown: (_) => onTap(),
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: accentColor.withOpacity(0.25),
+          shape: BoxShape.circle,
+          border: Border.all(color: accentColor.withOpacity(0.8), width: 2.5),
+          boxShadow: [
+            BoxShadow(
+              color: accentColor.withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, color: Colors.white, size: size * 0.45),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 9,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
