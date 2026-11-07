@@ -11,11 +11,11 @@ class PlayerComponent extends PositionComponent
     with HasGameReference<CodeHunterGame>, KeyboardHandler, CollisionCallbacks {
   final Vector2 initialPos;
   PlayerComponent({required this.initialPos})
-      : super(
-          position: initialPos,
-          size: Vector2(24, 32),
-          anchor: Anchor.bottomCenter,
-        );
+    : super(
+        position: initialPos,
+        size: Vector2(24, 32),
+        anchor: Anchor.bottomCenter,
+      );
 
   final Vector2 velocity = Vector2.zero();
   final double moveSpeed = 130.0;
@@ -105,6 +105,7 @@ class PlayerComponent extends PositionComponent
     return true;
   }
 
+  // FUNGSI SAAT KARAKTER TERKENA DAMAGE
   void takeDamage() {
     if (!isHurt) {
       game.loseLife();
@@ -122,8 +123,9 @@ class PlayerComponent extends PositionComponent
     if (isHurt) {
       hurtTimer -= dt;
       if (spriteComponent != null) {
-        spriteComponent!.opacity =
-            (hurtTimer * 10).toInt() % 2 == 0 ? 0.3 : 1.0;
+        spriteComponent!.opacity = (hurtTimer * 10).toInt() % 2 == 0
+            ? 0.3
+            : 1.0;
       }
       if (hurtTimer <= 0) {
         isHurt = false;
@@ -141,3 +143,69 @@ class PlayerComponent extends PositionComponent
     position += velocity * dt;
 
     if (position.x < size.x / 2) position.x = size.x / 2;
+    if (position.x > game.mapWidth - (size.x / 2)) {
+      position.x = game.mapWidth - (size.x / 2);
+    }
+
+    if (horizontalInput < 0 && !isFlippedHorizontally) {
+      flipHorizontally();
+    } else if (horizontalInput > 0 && isFlippedHorizontally) {
+      flipHorizontally();
+    }
+
+    if (position.y >
+        game.cameraComponent.viewfinder.visibleWorldRect.bottom + 50) {
+      AudioManager.instance.playHurt();
+      game.loseLife();
+      position = initialPos.clone();
+      velocity.setZero();
+    }
+    isOnGround = false;
+  }
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    super.onCollision(intersectionPoints, other);
+
+    if (other is GroundBlock) {
+      final kakiPemain = position.y;
+      final atasTanah = other.position.y;
+      final tengahPemain = position.x;
+      final kiriTanah = other.position.x;
+      final kananTanah = other.position.x + other.size.x;
+
+      if (velocity.y >= 0 &&
+          kakiPemain <= atasTanah + 12 &&
+          kakiPemain > atasTanah - 4) {
+        if (tengahPemain > kiriTanah - 8 && tengahPemain < kananTanah + 8) {
+          position.y = atasTanah;
+          velocity.y = 0;
+          isOnGround = true;
+        }
+      }
+    }
+
+    if (other is TrapBlock || other is EnemyComponent) {
+      if (!isHurt) {
+        AudioManager.instance.playHurt();
+      }
+      takeDamage();
+    }
+
+    if (other is CoinItem) {
+      AudioManager.instance.playCoin();
+      game.addScore(10);
+      other.removeFromParent();
+    }
+    if (other is GemItem) {
+      AudioManager.instance.playCoin();
+      game.addScore(50);
+      other.removeFromParent();
+    }
+    if (other is HeartItem) {
+      AudioManager.instance.playCoin();
+      game.addLife(1);
+      other.removeFromParent();
+    }
+  }
+}
