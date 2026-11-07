@@ -3,7 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../utils/audio_manager.dart'; // <-- IMPORT AUDIO MANAGER
+import '../utils/audio_manager.dart';
 import 'code_hunter_game.dart';
 import 'game_elements.dart';
 
@@ -11,11 +11,11 @@ class PlayerComponent extends PositionComponent
     with HasGameReference<CodeHunterGame>, KeyboardHandler, CollisionCallbacks {
   final Vector2 initialPos;
   PlayerComponent({required this.initialPos})
-    : super(
-        position: initialPos,
-        size: Vector2(24, 32),
-        anchor: Anchor.bottomCenter,
-      );
+      : super(
+          position: initialPos,
+          size: Vector2(24, 32),
+          anchor: Anchor.bottomCenter,
+        );
 
   final Vector2 velocity = Vector2.zero();
   final double moveSpeed = 130.0;
@@ -44,30 +44,33 @@ class PlayerComponent extends PositionComponent
     }
   }
 
-  @override
-  bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
-    horizontalInput = 0.0;
-    if (keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
-        keysPressed.contains(LogicalKeyboardKey.keyA)) {
-      horizontalInput -= 1.0;
-      facingDirection = -1;
-    }
-    if (keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
-        keysPressed.contains(LogicalKeyboardKey.keyD)) {
-      horizontalInput += 1.0;
-      facingDirection = 1;
-    }
-    if ((keysPressed.contains(LogicalKeyboardKey.space) ||
-            keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
-            keysPressed.contains(LogicalKeyboardKey.keyW)) &&
-        isOnGround) {
-      // 1. SUARA SAAT KARAKTER MELOMPAT (jump.mp3)
-      AudioManager.instance.playJump();
+  // =========================================================
+  // ENGINE INPUT BRIDGE (KENDALI LAYAR SENTUH VIRTUAL GAMEPAD)
+  // =========================================================
+  void moveLeft() {
+    horizontalInput = -1.0;
+    facingDirection = -1;
+  }
 
+  void moveRight() {
+    horizontalInput = 1.0;
+    facingDirection = 1;
+  }
+
+  void stopMoving() {
+    horizontalInput = 0.0;
+  }
+
+  void jump() {
+    if (isOnGround) {
+      AudioManager.instance.playJump();
       velocity.y = jumpForce;
       isOnGround = false;
     }
-    if (keysPressed.contains(LogicalKeyboardKey.keyF) && shootCooldown <= 0) {
+  }
+
+  void attack() {
+    if (shootCooldown <= 0) {
       final fireball = Fireball(
         position: Vector2(position.x + (facingDirection * 12), position.y - 8),
         direction: facingDirection,
@@ -75,10 +78,33 @@ class PlayerComponent extends PositionComponent
       game.gameWorld.add(fireball);
       shootCooldown = 0.4;
     }
+  }
+
+  // =========================================================
+  // KENDALI KEYBOARD (UNTUK PENGUJIAN DI LAPTOP / PC)
+  // =========================================================
+  @override
+  bool onKeyEvent(KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    horizontalInput = 0.0;
+    if (keysPressed.contains(LogicalKeyboardKey.arrowLeft) ||
+        keysPressed.contains(LogicalKeyboardKey.keyA)) {
+      moveLeft();
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.arrowRight) ||
+        keysPressed.contains(LogicalKeyboardKey.keyD)) {
+      moveRight();
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.space) ||
+        keysPressed.contains(LogicalKeyboardKey.arrowUp) ||
+        keysPressed.contains(LogicalKeyboardKey.keyW)) {
+      jump();
+    }
+    if (keysPressed.contains(LogicalKeyboardKey.keyF)) {
+      attack();
+    }
     return true;
   }
 
-  // FUNGSI INI WAJIB ADA AGAR TIDAK ERROR DI GAME SCREEN
   void takeDamage() {
     if (!isHurt) {
       game.loseLife();
@@ -96,9 +122,8 @@ class PlayerComponent extends PositionComponent
     if (isHurt) {
       hurtTimer -= dt;
       if (spriteComponent != null) {
-        spriteComponent!.opacity = (hurtTimer * 10).toInt() % 2 == 0
-            ? 0.3
-            : 1.0;
+        spriteComponent!.opacity =
+            (hurtTimer * 10).toInt() % 2 == 0 ? 0.3 : 1.0;
       }
       if (hurtTimer <= 0) {
         isHurt = false;
@@ -116,72 +141,3 @@ class PlayerComponent extends PositionComponent
     position += velocity * dt;
 
     if (position.x < size.x / 2) position.x = size.x / 2;
-    if (position.x > game.mapWidth - (size.x / 2)) {
-      position.x = game.mapWidth - (size.x / 2);
-    }
-
-    if (horizontalInput < 0 && !isFlippedHorizontally) {
-      flipHorizontally();
-    } else if (horizontalInput > 0 && isFlippedHorizontally) {
-      flipHorizontally();
-    }
-
-    if (position.y >
-        game.cameraComponent.viewfinder.visibleWorldRect.bottom + 50) {
-      // Suara hurt jika karakter jatuh ke jurang
-      AudioManager.instance.playHurt();
-      game.loseLife();
-      position = initialPos.clone();
-      velocity.setZero();
-    }
-    isOnGround = false;
-  }
-
-  @override
-  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    super.onCollision(intersectionPoints, other);
-
-    if (other is GroundBlock) {
-      final kakiPemain = position.y;
-      final atasTanah = other.position.y;
-      final tengahPemain = position.x;
-      final kiriTanah = other.position.x;
-      final kananTanah = other.position.x + other.size.x;
-
-      if (velocity.y >= 0 &&
-          kakiPemain <= atasTanah + 12 &&
-          kakiPemain > atasTanah - 4) {
-        if (tengahPemain > kiriTanah - 8 && tengahPemain < kananTanah + 8) {
-          position.y = atasTanah;
-          velocity.y = 0;
-          isOnGround = true;
-        }
-      }
-    }
-
-    // 2. SUARA SAAT MENGENAI MONSTER TANPA MENEMBAK / KENA JEBAKAN (hurt.mp3)
-    if (other is TrapBlock || other is EnemyComponent) {
-      if (!isHurt) {
-        AudioManager.instance.playHurt();
-      }
-      takeDamage();
-    }
-
-    // 3. SUARA SAAT MENYENTUH KOIN (coin.mp3)
-    if (other is CoinItem) {
-      AudioManager.instance.playCoin();
-      game.addScore(10);
-      other.removeFromParent();
-    }
-    if (other is GemItem) {
-      AudioManager.instance.playCoin();
-      game.addScore(50);
-      other.removeFromParent();
-    }
-    if (other is HeartItem) {
-      AudioManager.instance.playCoin();
-      game.addLife(1);
-      other.removeFromParent();
-    }
-  }
-}

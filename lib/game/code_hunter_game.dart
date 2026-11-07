@@ -73,10 +73,10 @@ class CodeHunterGame extends FlameGame
     );
     mapWidth = mapComponent.tileMap.map.width * 16.0;
 
-    final double viewWidth = 320;
-    final double viewHeight = 180;
-    final halfW = viewWidth / 2;
-    final halfH = viewHeight / 2;
+    const double viewWidth = 320;
+    const double viewHeight = 180;
+    const halfW = viewWidth / 2;
+    const halfH = viewHeight / 2;
 
     cameraComponent = CameraComponent.withFixedResolution(
       width: viewWidth,
@@ -102,6 +102,15 @@ class CodeHunterGame extends FlameGame
     _setupHeaderHUD();
     cameraComponent.follow(player);
   }
+
+  // =========================================================
+  // FUNGSI JEMBATAN KONTROL VIRTUAL GAMEPAD KE PLAYER
+  // =========================================================
+  void movePlayerLeft() => player.moveLeft();
+  void movePlayerRight() => player.moveRight();
+  void stopPlayer() => player.stopMoving();
+  void jumpPlayer() => player.jump();
+  void attackPlayer() => player.attack();
 
   void addScore(int amount) {
     score += amount;
@@ -184,8 +193,9 @@ class CodeHunterGame extends FlameGame
     for (final layer in tileMap.map.layers) {
       if (layer is TileLayer) {
         final layerName = layer.name.toLowerCase();
-        if (layerName.contains('decor') || layerName.contains('dekor'))
+        if (layerName.contains('decor') || layerName.contains('dekor')) {
           continue;
+        }
 
         for (int y = 0; y < layer.height; y++) {
           for (int x = 0; x < layer.width; x++) {
